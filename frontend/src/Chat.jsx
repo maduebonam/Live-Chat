@@ -10,7 +10,7 @@ import { UserContext } from "./UserContext";
 import Contact from "./Contact";
 import axios from "axios";
 import { uniqBy } from "lodash";
-
+import { faBars } from '@fortawesome/free-solid-svg-icons'; 
 
 
 library.add(faUser);
@@ -25,6 +25,8 @@ export default function Chat() {
   const { username, id, setId, setUsername } = useContext(UserContext);
   const [highlightedMessageId, setHighlightedMessageId] = useState(null);
   const divUnderMessages = useRef();
+  const [isVisible, setIsVisible] = useState(true);
+
 
   //WebSocket Connection
   useEffect(() => {
@@ -49,10 +51,11 @@ export default function Chat() {
       console.error("WebSocket connection error:", err);
     });
   }
+
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible); // Toggle visibility
+};
   
-  // const handleHighlight = (messageId) => {
-  //   console.log(`Message highlighted: ${messageId}`);
-  // };
   const handleHighlight = (messageId) => {
     setHighlightedMessageId(prevId => (prevId === messageId ? null : messageId));
   };
@@ -244,9 +247,34 @@ useEffect(() => {
   
     
   return (
+<div className="flex flex-col h-full">
+<div className="flex items-center justify-between  bg-white w-full fixed z-10 px-4 py-1 shadow-md">
+         <div className="flex ">
+            <Logo />
+            <FontAwesomeIcon
+              icon={faBars}
+              className="w-4 items-center h-4 ml-4 pt-3 cursor-pointer"
+              onClick={toggleVisibility}
+            />
+            </div>
+            <div className="flex items-center justify-center p-1 bg-gray-400">
+            <span className="text-sm text-gray-800">
+              <FontAwesomeIcon icon={faUser} /> {username}
+            </span>
+             <button
+             onClick={logout}
+             className="bg-blue-500 py-1 px-2 border rounded text-sm text-white"
+           >
+             Logout
+           </button>
+           </div>
+        </div>
+        
+
+
     <div className="flex h-screen flex-row">
-      <div className="bg-white lg:w-1/4 sm:w-1/3 text-sm flex flex-col">
-        <Logo />
+      {isVisible && (    
+      <div className="bg-white pt-12 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
         <div className="flex-grow overflow-y-auto">
           {Object.keys(onlineExcludingSelf).map((userId) => (
             <Contact
@@ -281,9 +309,11 @@ useEffect(() => {
           </button>
         </div>
       </div>
-
+      )}
       {/* Chat Area */}
-      <div className="flex flex-col bg-gray-200 w-full p-2 ">
+      {/* <div className="flex flex-col bg-gray-200 w-full p-2 "> */}
+       
+      <div className={`flex flex-col bg-gray-200 w-full ${!isVisible ? "h-full" : ""}`}>     
         <div className="flex-grow overflow-y-scroll">
           {!selectedUserId ? (
             <div className="flex h-full items-center justify-center text-gray-300">
@@ -329,7 +359,7 @@ useEffect(() => {
 
         {/* Message Input */}
         {selectedUserId && (
-           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:px-3 sm:py-1 md:px-5 md:py-3">
+           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-3 sm:py-1 md:px-5 md:py-3">
             <input
               type="text"
               value={newMessageText}
@@ -337,7 +367,7 @@ useEffect(() => {
               placeholder="Type a message..."
               className="flex-grow p-3 border rounded-l"
             />
-            <label className='bg-gray-50 cursor-pointer p-3 '>
+            <label className='bg-gray-50 cursor-pointer px-3 py-2 '>
               <input type="file" className='hidden' onChange={sendFile}/>
               <FontAwesomeIcon icon={faPaperclip} className="text-gray-900 text-2xl" />
               </label>
@@ -351,29 +381,8 @@ useEffect(() => {
         )}
       </div>
     </div>
+    </div>
+
   );
 }
-
-
-
-//           {Object.keys(onlinePeople).map((userId) => (
-// //           {Object.keys(onlineExcludingSelf).map((userId) => (
-//             <Contact
-//               key={userId}
-//               id={userId}
-//               online={true}
-//               username={onlinePeople[userId]}
-//               onClick={() => setSelectedUserId(userId)}
-//               selected={userId === selectedUserId}
-//             />
-
-//           {Object.keys(offlinePeople).map((userId) => (
-//             <Contact
-//               key={userId}
-//               id={userId}
-//               online={false}
-//               username={offlinePeople[userId]?.username}
-//               onClick={() => setSelectedUserId(userId)}
-//               selected={userId === selectedUserId}
-//             />
 
