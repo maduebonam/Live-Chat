@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 
-const API_URL = "https://external-api-url.com";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000"; 
 
 export const UserContext = createContext({});
 export function UserContextProvider({children}) {
