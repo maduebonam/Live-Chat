@@ -148,8 +148,8 @@ export default function Chat() {
       console.error("WebSocket is not open.");
     }
   }
-  const currentUserId = 'userId';  // Current user ID (replace with actual ID logic)
-   // WebSocket Connection (Ensure it's established only once)
+  const currentUserId = 'userId';  
+   
    useEffect(() => {
     const socket = new WebSocket("ws://localhost:5000/ws");
     socket.onmessage = (event) => {
@@ -161,7 +161,7 @@ export default function Chat() {
         );
       }
     }; 
-    return () => socket.close(); // Cleanup on unmount
+    return () => socket.close(); t
   }, []);
   
 // Function to handle message deletion

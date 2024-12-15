@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 
-
+const API_URL = "https://external-api-url.com";
 
 export const UserContext = createContext({});
 export function UserContextProvider({children}) {
@@ -10,7 +10,9 @@ export function UserContextProvider({children}) {
     
 
     useEffect(() => {
-        axios.get('/profile')
+        // axios.get('/profile')
+        axios
+      .get(`${API_URL}/profile`)
             .then(response => {
                 setId(response.data.userId);
                 setUsername(response.data.username);
