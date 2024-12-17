@@ -32,6 +32,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cookieParser());
 
+app.get('/', (req, res) => {
+    res.send("Welcome to MaduChat API!");
+});
 
 // Multer setup for handling file uploads (store files in 'uploads' directory)
 const storage = multer.diskStorage({
@@ -62,22 +65,17 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 async function getUserDataFromRequest(req) {
     return new Promise((resolve, reject) => {
         const token = req.cookies?.token;
-        if (!token) {
-            return reject('No token provided');
-        }
+        if (!token) return reject('No token provided');
+        
         jwt.verify(token, jwtSecret, {}, (err, userData) => {
-             if (err)  // {
-                return reject('Invalid token');
-        // }
+             if (err) return reject('Invalid token');
             resolve(userData);
         });
     });
 }
 
 // Test Route
-app.get("/test", (req, res) => {
-    res.json("test ok");
-});
+app.get("/test", (req, res) =>  res.json("test ok"));
 
 app.get('/messages/:userId', async (req, res) => {
     try {
@@ -108,9 +106,7 @@ app.get('/profile', (req, res) => {
         return res.status(401).json({ error: 'No token provided' });
     }
     jwt.verify(token, jwtSecret, {}, (err, userData) => {
-        if (err) {
-            return res.status(403).json({ error: 'Invalid token' });
-        }
+        if (err) return res.status(403).json({ error: 'Invalid token' });
         res.json(userData);
     });
 });
@@ -118,19 +114,10 @@ app.get('/profile', (req, res) => {
 
 // File upload route
 app.post('/upload', upload.single('file'), (req, res) => {
-    // Check if a file is provided
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-   // Send response with the uploaded file's path
-   const filePath = `/uploads/${req.file.filename}`;
-   res.json({ filePath });
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    res.json({ filePath: `/uploads/${req.file.filename}` });
 });
-
-   //     res.json({ filePath: `/uploads/${req.file.filename}` });
-// });
-
+ 
 
 // Login Route
 app.post('/login', async (req, res) => {
@@ -138,25 +125,17 @@ app.post('/login', async (req, res) => {
 
     try {
         const foundUser = await User.findOne({ username });
-        if (!foundUser) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        if (!foundUser) return res.status(404).json({ error: 'User not found' });
         const passOk = bcrypt.compareSync(password, foundUser.password);
-        if (!passOk) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
+        if (!passOk) return res.status(401).json({ error: 'Invalid credentials' });
 
         jwt.sign({ userId: foundUser._id, username }, jwtSecret, {}, (err, token) => {
             if (err) throw err;
 
             res.cookie('token', token, {
                 sameSite: 'lax',
-                secure: process.env.NODE_ENV === 'production', // Set true in production
-                httpOnly: true, // Prevent access by JavaScript
-            }).json({
-                id: foundUser._id,
-                username,
-            });
+                secure: process.env.NODE_ENV === 'production', httpOnly: true })
+                .json({ id: foundUser._id, username });
         });
     } catch (err) {
         console.error('Login failed:', err);
@@ -164,7 +143,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.post('/logout', (req,res) => {
+app.post('/logout', (req, res) => {
 res.cookie('token', '', {sameSite:'none', secure:true}).json('ok');
 });
 
@@ -197,11 +176,9 @@ app.post('/register', async (req, res) => {
 });
 
 const server = http.createServer(app);
-server.listen(5000, () => console.log('Server running on port 5000'));
-
 const wss = new ws.WebSocketServer({
-    server,  // The HTTP server that the WebSocket server will use
-    path: '/ws'  // The WebSocket connection path
+    server, 
+    path: '/ws'  
 });
 
 
@@ -260,12 +237,8 @@ wss.on('connection', (connection, req) => {
      connection.on('message', async (message) => {
         try {
             const messageData = JSON.parse(message.toString()); 
-            // Check if it's a delete message
             if (messageData.action === 'delete' && messageData.messageId) {
-                // Handle the deletion of the message in the database
                 await Message.findByIdAndDelete(messageData.messageId);
-    
-                // Notify all clients (or just the recipient, depending on your use case)
                 [...wss.clients]
                     .filter((c) => c.userId === messageData.recipient)
                     .forEach((c) => {
@@ -332,3 +305,8 @@ wss.on('connection', (connection, req) => {
     });
 });
 
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
