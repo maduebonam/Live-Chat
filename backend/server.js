@@ -19,12 +19,22 @@ const app = express();
 
 
 // CORS middleware to allow cross-origin requests
-const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true, // Enable cookies and authorization headers
-};
+const allowedOrigins = [
+    'http://localhost:5173', // Local development frontend
+    'https://maduchat.vercel.app' // Deployed frontend on Vercel
+];
+
+// const corsOptions = {
+//     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+//     credentials: true, // Enable cookies and authorization headers
+// };
+
 // Handle preflight requests (CORS)
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: allowedOrigins, // Allow specific origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+    credentials: true // Allow credentials like cookies or authorization headers
+}));
 
 //other Middleware
 app.use(express.json());
