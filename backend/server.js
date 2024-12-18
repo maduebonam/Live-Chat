@@ -31,9 +31,12 @@ const allowedOrigins = [
 
 // Handle preflight requests (CORS)
 app.use(cors({
-    origin: "http://localhost:5173", 
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
-    credentials: true // Allow credentials like cookies or authorization headers
+    origin: [
+        'https://maduchat.vercel.app', 
+        'http://localhost:5173',      
+      ], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    credentials: true 
 }));
 
 //other Middleware
