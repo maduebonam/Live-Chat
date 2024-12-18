@@ -24,6 +24,7 @@ const allowedOrigins = [
     'https://maduchat.vercel.app' // Deployed frontend on Vercel
 ];
 
+
 // const corsOptions = {
 //     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
 //     credentials: true, // Enable cookies and authorization headers
@@ -31,12 +32,10 @@ const allowedOrigins = [
 
 // Handle preflight requests (CORS)
 app.use(cors({
-    origin: [
-        'https://maduchat.vercel.app', 
-        'http://localhost:5173',      
-      ], 
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
-    credentials: true 
+    origin: allowedOrigins, 
+      credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 //other Middleware
@@ -111,17 +110,22 @@ app.get('/people', async (req,res) => {
     res.json(users);
 });
 
-
 // Profile Route
 app.get('/profile', (req, res) => {
     const token = req.cookies?.token;
     if (!token) {
         return res.status(401).json({ error: 'No token provided' });
     }
-    jwt.verify(token, jwtSecret, {}, (err, userData) => {
-        if (err) return res.status(403).json({ error: 'Invalid token' });
+    // jwt.verify(token, jwtSecret, {}, (err, userData) => {
+    //     if (err) return res.status(403).json({ error: 'Invalid token' });
+    //     res.json(userData);
+    // });
+    try {
+        const userData = jwt.verify(token, jwtSecret);
         res.json(userData);
-    });
+    } catch (err) {
+        res.status(403).json({ error: 'Invalid token' });
+    }
 });
 
 
@@ -164,6 +168,8 @@ res.cookie('token', '', {sameSite:'none', secure:true}).json('ok');
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     try {
+        const existingUser = await User.findOne({ username });
+        if (existingUser) return res.status(409).json({ error: 'Username already taken' });
         const hashedPassword = bcrypt.hashSync(password, bcryptSalt);
         const createdUser = await User.create({
             username,
