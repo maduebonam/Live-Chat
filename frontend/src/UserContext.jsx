@@ -14,13 +14,14 @@ export function UserContextProvider({children}) {
         axios
       .get(`${API_URL}/profile`, { withCredentials: true })
             .then(response => {
+              console.log("Profile fetched successfully:", response.data);
                 setId(response.data.userId);
                 setUsername(response.data.username);
             })
             .catch(error => {
-                console.error('Failed to fetch profile:', error.message);
+                console.error('Failed to fetch profile:', error.response?.data || error.message);
                 setId(null);
-                setUsername(null);
+                setUsername(null); 
             });
     }, []);
     
