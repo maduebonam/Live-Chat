@@ -31,7 +31,7 @@ const allowedOrigins = [
 
 // Handle preflight requests (CORS)
 app.use(cors({
-    origin: allowedOrigins, // Allow specific origins
+    origin: "http://localhost:5173", 
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
     credentials: true // Allow credentials like cookies or authorization headers
 }));
