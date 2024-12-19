@@ -45,7 +45,7 @@ app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
 });
 
-app.get('/api', (req, res) => {
+server.get('/server', (req, res) => {
     res.send("Welcome to MaduChat API!");
 });
 
@@ -138,7 +138,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
  
 
 // Login Route
-app.post('/login', async (req, res) => {
+app.post('/server/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
@@ -166,7 +166,7 @@ res.cookie('token', '', {sameSite:'none', secure:true}).json('ok');
 });
 
 // Register Route
-app.post('/register', async (req, res) => {
+app.post('/server/register', async (req, res) => {
     const { username, password } = req.body;
     try {
         const existingUser = await User.findOne({ username });
