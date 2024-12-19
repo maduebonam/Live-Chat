@@ -35,7 +35,9 @@ const RegisterAndLoginForm = () => {
         <div className="flex items-center h-screen">
             <form className="w-64 mx-auto mb-12" onSubmit={handleSubmit} autoComplete="off">
                 <input
-                    type="text"
+                    type="text"                  
+                    id="username"
+                    name="username"
                     value={username}
                     onChange={(ev) => setUsername(ev.target.value)}
                     placeholder="Username"
@@ -45,6 +47,8 @@ const RegisterAndLoginForm = () => {
                 />
                 <input
                     type="password"
+                    name="password"  
+                    id="password"    
                     value={password}
                     onChange={(ev) => setPassword(ev.target.value)}
                     placeholder="Password"
