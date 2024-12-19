@@ -12,28 +12,23 @@ const RegisterAndLoginForm = () => {
         ev.preventDefault();
         
         const API_URL = import.meta.env.VITE_API_URL || "https://maduchat.onrender.com/server";
-        
+
         const url = isLoginOrRegister === 'register' ? `${API_URL}/register` : `${API_URL}/login`;
 
                //const url = isLoginOrRegister === 'register' ? 'http://localhost:5000/register' : 'http://localhost:5000/login'; // Set the URL based on action
-                try {
-                axios.post(url, { username, password }, { withCredentials: true })
-                .then(response => {
-                    setLoggedInUsername(username);
-                    setId(response.data.id); // Set user ID
-                })
-                .catch(error => {
-                    console.error("Login or Registration failed:", error);
-                });
-            
-
+               try {
+                const response = await axios.post(url, { username, password }, { withCredentials: true });
+                setLoggedInUsername(username);
+                setId(response.data.id); // Set user ID
+              } catch (error) {
+                console.error("Login or Registration failed:", error);
+              }
+          
             // Clear the input fields
             setUsername(''); // Clear username
             setPassword(''); // Clear password
-        } catch (error) {
-            console.error("Login or Registration failed:", error);
         }
-    }
+    
 
     return (
         <div className="flex items-center h-screen">

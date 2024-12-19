@@ -4,7 +4,7 @@ import { UserContext } from "./UserContext";
 import Chat from './Chat';
 
 export default function MyRoutes() {
-    const { username, id, loading } = useContext(UserContext);
+    const { username, loading } = useContext(UserContext);
 
     if (loading) {
         return (
