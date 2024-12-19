@@ -25,11 +25,6 @@ const allowedOrigins = [
 ];
 
 
-// const corsOptions = {
-//     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-//     credentials: true, // Enable cookies and authorization headers
-// };
-
 // Handle preflight requests (CORS)
 app.use(cors({
     origin: allowedOrigins, 
@@ -41,10 +36,16 @@ app.use(cors({
 //other Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cookieParser());
 
-app.get('/', (req, res) => {
+// Fallback: Serve index.html for all other routes
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+});
+
+app.get('/api', (req, res) => {
     res.send("Welcome to MaduChat API!");
 });
 
