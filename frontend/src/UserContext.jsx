@@ -74,7 +74,7 @@ export function UserContextProvider({ children }) {
 
   // Context Provider with user state and actions
   return (
-    <UserContext.Provider value={{ username, setUsername, id, setId, register, login, logout }}>
+    <UserContext.Provider value={{ username, setUsername, id, setId, loading }}>
       {children}
     </UserContext.Provider>
   );
