@@ -40,13 +40,18 @@ app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cookieParser());
 
+
+app.get('/server', (req, res) => {
+    res.send("Welcome to MaduChat API!");
+});
+
+app.get('/server/profile', (req, res) => {
+    res.json({ userId: "123", username: "testuser" }); // Example response
+});
+
 // Fallback: Serve index.html for all other routes
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
-});
-
-server.get('/server', (req, res) => {
-    res.send("Welcome to MaduChat API!");
 });
 
 // Multer setup for handling file uploads (store files in 'uploads' directory)
@@ -327,6 +332,6 @@ wss.on('connection', (connection, req) => {
 
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
