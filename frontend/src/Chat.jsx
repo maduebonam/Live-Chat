@@ -39,7 +39,8 @@ export default function Chat() {
   }, []);
   // Function to connect to the WebSocket server
   function connectToWs() {
-    const wsInstance = new WebSocket("ws://localhost:5000/ws");
+    const wsInstance = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
+    //("ws://localhost:5000/ws");
     setWs(wsInstance);
     wsInstance.addEventListener("message", handleMessage);
     wsInstance.addEventListener("close", () => {

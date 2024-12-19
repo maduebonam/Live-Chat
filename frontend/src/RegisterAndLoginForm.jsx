@@ -10,8 +10,11 @@ const RegisterAndLoginForm = () => {
 
     async function handleSubmit(ev) {
         ev.preventDefault();
-        // const url = isLoginOrRegister === 'register' ? 'register' : 'login';
-               const url = isLoginOrRegister === 'register' ? 'http://localhost:5000/register' : 'http://localhost:5000/login'; // Set the URL based on action
+        
+        const API_URL = import.meta.env.VITE_API_URL || "https://maduchat.onrender.com/server";
+        const url = isLoginOrRegister === 'register' ? `${API_URL}/register` : `${API_URL}/login`;
+
+               //const url = isLoginOrRegister === 'register' ? 'http://localhost:5000/register' : 'http://localhost:5000/login'; // Set the URL based on action
                 try {
                 axios.post(url, { username, password }, { withCredentials: true })
                 .then(response => {
