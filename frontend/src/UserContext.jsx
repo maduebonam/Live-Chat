@@ -2,10 +2,7 @@ import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 
 // Define the API URL from environment variables or fallback
-const API_URL = "https://maduchat.onrender.com/server";
-
-//"http://localhost:5000/server";
-//import.meta.env.VITE_API_URL || "https://maduchat.onrender.com/server";
+const API_URL = import.meta.env.VITE_API_URL || "https://maduchat.onrender.com/server";
 
 export const UserContext = createContext({});
 
@@ -78,23 +75,6 @@ export function UserContextProvider({ children }) {
     </UserContext.Provider>
   );
 }
-
-// Example API call outside the context
-const API_BASE_URL = "https://maduchat.onrender.com/server";
-
-//"http://localhost:5000/server";
-//"https://maduchat.onrender.com/server";
-
-export const loginExample = async (username, password) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/login`, { username, password }, { withCredentials: true });
-    console.log("Login successful:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Login failed:", error.response?.data || error.message);
-    throw error;
-  }
-};
 
 
 
