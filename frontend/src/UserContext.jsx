@@ -9,64 +9,68 @@ export const UserContext = createContext({});
 export function UserContextProvider({ children }) {
   const [username, setUsername] = useState(null);
   const [id, setId] = useState(null);
+  const [loading, setLoading] = useState(true); 
 
   // Fetch user profile on app load
   useEffect(() => {
     axios
       .get(`${API_URL}/profile`, { withCredentials: true }) // Ensure credentials (cookies) are sent
       .then((response) => {
-        console.log("Profile fetched successfully:", response.data);
+        //console.log("Profile fetched successfully:", response.data);
         setId(response.data.userId);
         setUsername(response.data.username);
       })
-      .catch((error) => {
-        console.error("No profile found. Redirecting to login/registration...");
+      .catch(() => {
+        //console.error("No profile found. Redirecting to login/registration...");
         setId(null);
         setUsername(null); // Clear user state on failure
+      })
+      .finally(() => {
+        setLoading(false); // Set loading to false after the request completes
       });
   }, []);
 
-  // User Registration Function
-  const register = async (username, password) => {
-    try {
-      const response = await axios.post(
-        `${API_URL}/profile`,
-        { username, password, isNewUser: true }, 
-        { withCredentials: true } 
-      );
-      console.log("Registration successful:", response.data);
-    } catch (error) {
-      console.error("Registration failed:", error.response?.data || error.message);
-    }
-  };
+  // // User Registration Function
+  // const register = async (username, password) => {
+  //   try {
+  //     const response = await axios.post(
+  //       `${API_URL}/profile`,
+  //       { username, password, isNewUser: true }, 
+  //       { withCredentials: true } 
+  //     );
+  //     console.log("Registration successful:", response.data);
+  //   } catch (error) {
+  //     console.error("Registration failed:", error.response?.data || error.message);
+  //   }
+  // };
 
-  // User Login Function
-  const login = async (username, password) => {
-    try {
-      const response = await axios.post(
-        `${API_URL}/profile`,
-        { username, password, isNewUser: false }, 
-        { withCredentials: true } 
-      );
-      console.log("Login successful:", response.data);
-      setId(response.data.id); 
-      setUsername(response.data.username); 
-    } catch (error) {
-      console.error("Login failed:", error.response?.data || error.message);
-    }
-  };
+  // // User Login Function
+  // const login = async (username, password) => {
+  //   try {
+  //     const response = await axios.post(
+  //       `${API_URL}/profile`,
+  //       { username, password, isNewUser: false }, 
+  //       { withCredentials: true } 
+  //     );
+  //     console.log("Login successful:", response.data);
+  //     setId(response.data.id); 
+  //     setUsername(response.data.username); 
+  //   } catch (error) {
+  //     console.error("Login failed:", error.response?.data || error.message);
+  //   }
+  // };
 
-  // User Logout Function
-  const logout = async () => {
-    try {
-      await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
-      setId(null);
-      setUsername(null);
-      console.log("User logged out successfully");
-    } catch (error) {
-      console.error("Logout failed:", error.response?.data || error.message);
-    }
-  };
+  // // User Logout Function
+  // const logout = async () => {
+  //   try {
+  //     await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
+  //     setId(null);
+  //     setUsername(null);
+  //     console.log("User logged out successfully");
+  //   } catch (error) {
+  //     console.error("Logout failed:", error.response?.data || error.message);
+  //   }
+  // };
 
   // Context Provider with user state and actions
   return (
