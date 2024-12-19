@@ -36,7 +36,7 @@ app.use(cors({
 //other Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'dist')));
+//app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cookieParser());
 
@@ -49,9 +49,8 @@ app.get('/server/profile', (req, res) => {
     res.json({ userId: "123", username: "testuser" }); // Example response
 });
 
-// Fallback: Serve index.html for all other routes
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+app.use((req, res) => {
+    res.status(404).json({ message: 'Route not found' });
 });
 
 // Multer setup for handling file uploads (store files in 'uploads' directory)
