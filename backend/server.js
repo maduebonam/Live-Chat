@@ -138,13 +138,6 @@ app.get('/profile', (req, res) => {
 });
 
 
-// File upload route
-app.post('/upload', upload.single('file'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    res.json({ filePath: `/uploads/${req.file.filename}` });
-});
- 
-
 // Login Route
 app.post('/server/login', async (req, res) => {
     const { username, password } = req.body;
@@ -202,6 +195,13 @@ app.post('/server/register', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+// File upload route
+app.post('/upload', upload.single('file'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    res.json({ filePath: `/uploads/${req.file.filename}` });
+});
+ 
 
 const server = http.createServer(app);
 const wss = new ws.WebSocketServer({
