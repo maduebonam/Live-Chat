@@ -4,10 +4,10 @@ import { UserContext } from "./UserContext";
 
 
 const RegisterAndLoginForm = () => {
-    const [username, setUsername] = useState('');
+    const [username, setLocalUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoginOrRegister, setIsLoginOrRegister] = useState('Login');
-    const { setUsername: setContextUsername, setId } = useContext(UserContext);
+    const { setContextUsername, setId } = useContext(UserContext);
 
     async function handleSubmit(ev) {
         ev.preventDefault();
@@ -18,19 +18,19 @@ const RegisterAndLoginForm = () => {
 
                //const url = isLoginOrRegister === 'register' ? 'http://localhost:5000/register' : 'http://localhost:5000/login'; // Set the URL based on action
                try {
-                const response = await axios.post('/server/login', { username, password }, { withCredentials: true });
+                const response = await axios.post(url, { username, password }, { withCredentials: true });
+                // const response = await axios.post('/server/login', { username, password }, { withCredentials: true });
+               
                 console.log('Login successful:', response.data);
                
                 setContextUsername(username);
-                //setLoggedInUsername(username);
-               
                 setId(response.data.id); // Set user ID
               } catch (error) {
                 console.error("Login or Registration failed:", error);
               }
           
             // Clear the input fields
-            setUsername(''); // Clear username
+            setLocalUsername(''); // Clear username
             setPassword(''); // Clear password
         }
     
@@ -43,7 +43,7 @@ const RegisterAndLoginForm = () => {
                     id="username"
                     name="username"
                     value={username}
-                    onChange={(ev) => setUsername(ev.target.value)}
+                    onChange={(ev) => setLocalUsername(ev.target.value)}
                     placeholder="Username"
                     className="block w-full rounded p-2 m-2 border"
                     autoComplete="off" // Prevent browser auto-fill

@@ -7,7 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || "https://maduchat.onrender.com/s
 export const UserContext = createContext({});
 
 export function UserContextProvider({ children }) {
-  const [username, setUsername] = useState(null);
+  const [username, setContextUsername] = useState(null);
   const [id, setId] = useState(null);
   const [loading, setLoading] = useState(true); 
 
@@ -34,7 +34,7 @@ export function UserContextProvider({ children }) {
  
   // Context Provider with user state and actions
   return (
-    <UserContext.Provider value={{ username, setUsername, id, setId, loading }}>
+    <UserContext.Provider value={{ username, setContextUsername, id, setId, loading }}>
       {children}
     </UserContext.Provider>
   );
