@@ -2,11 +2,12 @@ import { useState, useContext } from "react";
 import axios from "axios";
 import { UserContext } from "./UserContext";
 
+
 const RegisterAndLoginForm = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoginOrRegister, setIsLoginOrRegister] = useState('Login');
-    const { setUsername: setLoggedInUsername, setId } = useContext(UserContext);
+    const { setUsername: setContextUsername, setId } = useContext(UserContext);
 
     async function handleSubmit(ev) {
         ev.preventDefault();
@@ -17,8 +18,12 @@ const RegisterAndLoginForm = () => {
 
                //const url = isLoginOrRegister === 'register' ? 'http://localhost:5000/register' : 'http://localhost:5000/login'; // Set the URL based on action
                try {
-                const response = await axios.post(url, { username, password }, { withCredentials: true });
-                setLoggedInUsername(username);
+                const response = await axios.post('/server/login', { username, password }, { withCredentials: true });
+                console.log('Login successful:', response.data);
+               
+                setContextUsername(username);
+                //setLoggedInUsername(username);
+               
                 setId(response.data.id); // Set user ID
               } catch (error) {
                 console.error("Login or Registration failed:", error);

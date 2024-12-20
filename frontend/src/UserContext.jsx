@@ -18,7 +18,8 @@ export function UserContextProvider({ children }) {
           try {
               const response = await axios.get(`${API_URL}/profile`, { withCredentials: true });
               setId(response.data.id);
-              setLoggedInUsername(response.data.username);
+              setContextUsername(response.data.username);
+              //setLoggedInUsername(response.data.username);
               setLoading(false);
           } catch (err) {
               console.error('Not authenticated:', err);
