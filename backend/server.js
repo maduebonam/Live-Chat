@@ -117,8 +117,10 @@ app.get('/people', async (req,res) => {
 
 // Profile Route
 app.get('/profile', (req, res) => {
+    console.log('Cookies:', req.cookies);
     const token = req.cookies?.token;
     if (!token) {
+        console.log('No token provided');
         return res.status(401).json({ error: 'No token provided' });
     }
     // jwt.verify(token, jwtSecret, {}, (err, userData) => {
@@ -127,8 +129,10 @@ app.get('/profile', (req, res) => {
     // });
     try {
         const userData = jwt.verify(token, jwtSecret);
+        console.log('User verified:', userData);
         res.json(userData);
     } catch (err) {
+        console.log('Token verification failed:', err);
         res.status(403).json({ error: 'Invalid token' });
     }
 });
