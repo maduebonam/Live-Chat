@@ -30,7 +30,7 @@ app.use(cors({
     origin: allowedOrigins, 
       credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
 //other Middleware
@@ -49,9 +49,6 @@ app.get('/server/profile', (req, res) => {
     res.json({ userId: "123", username: "testuser" }); // Example response
 });
 
-app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
-});
 
 // Multer setup for handling file uploads (store files in 'uploads' directory)
 const storage = multer.diskStorage({
@@ -85,8 +82,14 @@ async function getUserDataFromRequest(req) {
         if (!token) return reject('No token provided');
         
         jwt.verify(token, jwtSecret, {}, (err, userData) => {
-             if (err) return reject('Invalid token');
-            resolve(userData);
+            //  if (err) return reject('Invalid token');
+            // resolve(userData);
+            if (err) {
+                console.error('JWT verification error:', err);
+                return; // Optionally terminate the connection
+            }
+            connection.userId = userData.userId;
+            connection.username = userData.username;
         });
     });
 }
@@ -116,27 +119,26 @@ app.get('/people', async (req,res) => {
 });
 
 // Profile Route
-app.get('/profile', (req, res) => {
-    console.log('Cookies:', req.cookies);
-    const token = req.cookies?.token;
-    if (!token) {
-        console.log('No token provided');
-        return res.status(401).json({ error: 'No token provided' });
-    }
-    // jwt.verify(token, jwtSecret, {}, (err, userData) => {
-    //     if (err) return res.status(403).json({ error: 'Invalid token' });
-    //     res.json(userData);
-    // });
+app.get('/server/profile', async (req, res) => {
     try {
-        const userData = jwt.verify(token, jwtSecret);
-        console.log('User verified:', userData);
-        res.json(userData);
+        const token = req.cookies?.token;
+        if (!token) {
+            return res.status(401).json({ error: 'No token provided' });
+        }
+        const decoded = jwt.verify(token, jwtSecret); // Assuming you're using JWT for custom tokens
+        const userId = decoded.userId;
+       
+        const userDoc = await firestore.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const user = userDoc.data();
+        res.json({ userId: userId, username: user.username });
     } catch (err) {
-        console.log('Token verification failed:', err);
-        res.status(403).json({ error: 'Invalid token' });
+        console.error('Error fetching profile:', err);
+        res.status(403).json({ error: 'Invalid or expired token' });
     }
 });
-
 
 // Login Route
 app.post('/server/login', async (req, res) => {
@@ -202,6 +204,9 @@ app.post('/upload', upload.single('file'), (req, res) => {
     res.json({ filePath: `/uploads/${req.file.filename}` });
 });
  
+app.use((req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+});
 
 const server = http.createServer(app);
 const wss = new ws.WebSocketServer({

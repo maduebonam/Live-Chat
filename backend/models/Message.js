@@ -11,3 +11,5 @@ sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 const MessageModel = mongoose.model('message', MessageSchema);
 
 module.exports = MessageModel;
+
+
