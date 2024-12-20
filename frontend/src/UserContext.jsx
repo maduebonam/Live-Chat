@@ -12,23 +12,23 @@ export function UserContextProvider({ children }) {
   const [loading, setLoading] = useState(true); 
 
   // Fetch user profile on app load
-  useEffect(() => {
-    axios
-      .get(`${API_URL}/profile`, { withCredentials: true }) // Ensure credentials (cookies) are sent
-      .then((response) => {
-        //console.log("Profile fetched successfully:", response.data);
-        setId(response.data.userId);
-        setUsername(response.data.username);
-      })
-      .catch(() => {
-        //console.error("No profile found. Redirecting to login/registration...");
-        setId(null);
-        setUsername(null); // Clear user state on failure
-      })
-      .finally(() => {
-        setLoading(false); // Set loading to false after the request completes
-      });
+  
+    useEffect(() => {
+      async function fetchProfile() {
+          try {
+              const response = await axios.get(`${API_URL}/profile`, { withCredentials: true });
+              setId(response.data.id);
+              setLoggedInUsername(response.data.username);
+              setLoading(false);
+          } catch (err) {
+              console.error('Not authenticated:', err);
+            } finally {
+              setLoading(false);  // Ensure the form shows on failed auth
+          }
+      }
+      fetchProfile();
   }, []);
+  
 
  
   // Context Provider with user state and actions
@@ -38,3 +38,23 @@ export function UserContextProvider({ children }) {
     </UserContext.Provider>
   );
 }
+
+
+
+//useEffect(() => {
+// axios
+// .get(`${API_URL}/profile`, { withCredentials: true }) // Ensure credentials (cookies) are sent
+// .then((response) => {
+//   //console.log("Profile fetched successfully:", response.data);
+//   setId(response.data.userId);
+//   setUsername(response.data.username);
+// })
+// .catch(() => {
+//   //console.error("No profile found. Redirecting to login/registration...");
+//   setId(null);
+//   setUsername(null); // Clear user state on failure
+// })
+// .finally(() => {
+//   setLoading(false); // Set loading to false after the request completes
+// });
+// }, []);
