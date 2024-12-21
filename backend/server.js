@@ -210,7 +210,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
     res.json({ filePath: `/uploads/${req.file.filename}` });
 });
  
-app.use((req, res) => {
+app.use(( req, res ) => {
     res.status(404).json({ message: 'Route not found' });
 });
 
@@ -225,15 +225,19 @@ wss.on('connection', (connection, req) => {
     console.log('New client connected');
     
     function notifyAboutOnlinePeople() {
-        const onlineUsers = [...wss.clients]
+        //const onlineUsers = [...wss.clients]
+        const uniqueOnlineUsers = [...new Map(
+            [...wss.clients]
         .filter((client) => client.userId && client.readyState === WebSocket.OPEN)
-        .map((client) => ({
-            userId: client.userId,
-            username: client.username,
-        }));
+        .map((client) => [client.userId, { userId: client.userId, username: client.username }])
+    ).values()];
+        // .map((client) => ({
+        //     userId: client.userId,
+        //     username: client.username,
+        // }));
     [...wss.clients].forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ online: onlineUsers }));
+            client.send(JSON.stringify({ online: uniqueOnlineUsers }));
         }
     });
 }
@@ -256,21 +260,8 @@ wss.on('connection', (connection, req) => {
         connection.isAlive = false;
         connection.ping(); // Send ping to check if client is alive
     }, 5000);
-        // connection.ping();
-
-        // if (connection.deathTimer) {
-        //     clearTimeout(connection.deathTimer);
-        // }
-
-    //     connection.deathTimer = setTimeout(() => {
-    //         connection.isAlive = false;
-    //         clearInterval(connection.timer);
-    //         connection.terminate();
-    //         console.log(`Connection terminated for userId: ${connection.userId}`);
-    //         notifyAboutOnlinePeople();
-    //     }, 1000);
-    // }, 5000);
-
+        
+   
      // Process cookies for user identification
      const cookies = req.headers.cookie;
      if (cookies) {
@@ -360,13 +351,7 @@ wss.on('connection', (connection, req) => {
         console.log(`Connection closed for userId: ${connection.userId}`);
         notifyAboutOnlinePeople();
     });
-        // if (connection.deathTimer) {
-        //     clearTimeout(connection.deathTimer);
-        // }
-    //     console.log(`Connection closed for userId: ${connection.userId}`);
-    //     notifyAboutOnlinePeople();
-    // });
-
+       
     connection.on('error', (err) => {
     console.error('WebSocket error:', err);
     
