@@ -7,9 +7,9 @@ const User = require('./models/User');
 const Message = require('./models/Message');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
- const ws = require('ws');
- const fs = require('fs');
- const path = require('path');
+const ws = require('ws');
+const fs = require('fs');
+const path = require('path');
 const http = require('http');
 const multer = require('multer');``
 
@@ -36,7 +36,6 @@ app.use(cors({
 //other Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-//app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cookieParser());
 
@@ -61,7 +60,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL, {
     serverSelectionTimeoutMS: 30000, // Wait 10 seconds for connection
@@ -78,15 +76,14 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 
 async function getUserDataFromRequest(req) {
     return new Promise((resolve, reject) => {
+        
         const token = req.cookies?.token;
         if (!token) return reject('No token provided');
         
         jwt.verify(token, jwtSecret, {}, (err, userData) => {
-            //  if (err) return reject('Invalid token');
-            // resolve(userData);
             if (err) {
                 console.error('JWT verification error:', err);
-                return; // Optionally terminate the connection
+                return; 
             }
             connection.userId = userData.userId;
             connection.username = userData.username;
@@ -151,12 +148,21 @@ app.post('/server/login', async (req, res) => {
         if (!passOk) return res.status(401).json({ error: 'Invalid credentials' });
 
         jwt.sign({ userId: foundUser._id, username }, jwtSecret, {}, (err, token) => {
-            if (err) throw err;
+           
+            if (err) {
+                console.error('JWT signing error:', err);
+                return res.status(500).json({ error: 'Failed to generate token' });
+            }
 
+            const isProduction = process.env.NODE_ENV === 'production';
             res.cookie('token', token, {
-                sameSite: 'lax',
-                secure: process.env.NODE_ENV === 'production', httpOnly: true })
-                .json({ id: foundUser._id, username });
+            httpOnly: true,
+            secure: isProduction, 
+            sameSite: isProduction ? 'None' : 'Lax', 
+            maxAge: 60 * 60 * 1000
+        })
+            .json({ id: foundUser._id, username });
+       
         });
     } catch (err) {
         console.error('Login failed:', err);
@@ -216,18 +222,34 @@ const wss = new ws.WebSocketServer({
 
 
 wss.on('connection', (connection, req) => {
+    console.log('New client connected');
+    
     function notifyAboutOnlinePeople() {
-        [...wss.clients].forEach((client) => {
-            client.send(
-                JSON.stringify({
-                    online: [...wss.clients].map((c) => ({
-                        userId: c.userId,
-                        username: c.username,
-                    })),
-                })
-            );
-        });
-    }
+        const onlineUsers = [...wss.clients]
+        .filter((client) => client.userId && client.readyState === WebSocket.OPEN)
+        .map((client) => ({
+            userId: client.userId,
+            username: client.username,
+        }));
+    [...wss.clients].forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ online: onlineUsers }));
+        }
+    });
+}
+   
+  
+        //     [...wss.clients].forEach((client) => {
+    //         client.send(
+    //             JSON.stringify({
+    //                 online: [...wss.clients].map((c) => ({
+    //                     userId: c.userId,
+    //                     username: c.username,
+    //                 })),
+    //             })
+    //         );
+    //     });
+    // }
 
 
     connection.isAlive = true;
@@ -244,6 +266,7 @@ wss.on('connection', (connection, req) => {
             connection.isAlive = false;
             clearInterval(connection.timer);
             connection.terminate();
+            console.log(`Connection terminated for userId: ${connection.userId}`);
             notifyAboutOnlinePeople();
         }, 1000);
     }, 5000);
@@ -258,10 +281,15 @@ wss.on('connection', (connection, req) => {
              const token = tokenCookieString.split('=')[1];
              if (token) {
                  jwt.verify(token, jwtSecret, {}, (err, userData) => {
-                     if (err) throw err;
+                     if (err) {
+                        console.error('JWT verification failed:', err);
+                        return;
+                    }
                      connection.userId = userData.userId;
                      connection.username = userData.username;
-                 });
+                     console.log(`User authenticated: ${userData.username}`);
+                     notifyAboutOnlinePeople();
+                    });
              }
          }
      }
@@ -273,7 +301,7 @@ wss.on('connection', (connection, req) => {
             if (messageData.action === 'delete' && messageData.messageId) {
                 await Message.findByIdAndDelete(messageData.messageId);
                 [...wss.clients]
-                    .filter((c) => c.userId === messageData.recipient)
+                    .filter((c) => c.userId === messageData.recipient && c.readyState === WebSocket.OPEN)
                     .forEach((c) => {
                         c.send(
                             JSON.stringify({
@@ -305,7 +333,7 @@ wss.on('connection', (connection, req) => {
                 });
     
                 [...wss.clients]
-                    .filter((c) => c.userId === messageData.recipient)
+                    .filter((c) => c.userId === messageData.recipient && c.readyState === WebSocket.OPEN)
                     .forEach((c) => {
                         c.send(
                             JSON.stringify({
@@ -316,14 +344,12 @@ wss.on('connection', (connection, req) => {
                                 _id: messageDoc._id,
                             })
                         );
-                    });
-    
+                    }); 
                 console.log('Message sent and stored in DB');
             }
         } catch (err) {
             console.error('Error handling message:', err);
-        }
-    
+        }    
         notifyAboutOnlinePeople();
     });
     
@@ -334,10 +360,15 @@ wss.on('connection', (connection, req) => {
         if (connection.deathTimer) {
             clearTimeout(connection.deathTimer);
         }
+        console.log(`Connection closed for userId: ${connection.userId}`);
         notifyAboutOnlinePeople();
     });
-});
 
+    connection.on('error', (err) => {
+    console.error('WebSocket error:', err);
+    
+  });
+ });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
