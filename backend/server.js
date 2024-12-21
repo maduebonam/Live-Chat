@@ -237,39 +237,39 @@ wss.on('connection', (connection, req) => {
         }
     });
 }
-   
-  
-        //     [...wss.clients].forEach((client) => {
-    //         client.send(
-    //             JSON.stringify({
-    //                 online: [...wss.clients].map((c) => ({
-    //                     userId: c.userId,
-    //                     username: c.username,
-    //                 })),
-    //             })
-    //         );
-    //     });
-    // }
-
-
+ 
     connection.isAlive = true;
 
-    // Ping to keep connection alive
+    connection.on('pong', () => {
+        connection.isAlive = true; // Mark connection as alive when pong is received
+    });
+
     connection.timer = setInterval(() => {
-        connection.ping();
-
-        if (connection.deathTimer) {
-            clearTimeout(connection.deathTimer);
-        }
-
-        connection.deathTimer = setTimeout(() => {
-            connection.isAlive = false;
+       
+        if (!connection.isAlive) {
+            console.log(`Connection is not alive for userId: ${connection.userId}, terminating...`);
             clearInterval(connection.timer);
             connection.terminate();
-            console.log(`Connection terminated for userId: ${connection.userId}`);
             notifyAboutOnlinePeople();
-        }, 1000);
+            return;
+        }
+        connection.isAlive = false;
+        connection.ping(); // Send ping to check if client is alive
     }, 5000);
+        // connection.ping();
+
+        // if (connection.deathTimer) {
+        //     clearTimeout(connection.deathTimer);
+        // }
+
+    //     connection.deathTimer = setTimeout(() => {
+    //         connection.isAlive = false;
+    //         clearInterval(connection.timer);
+    //         connection.terminate();
+    //         console.log(`Connection terminated for userId: ${connection.userId}`);
+    //         notifyAboutOnlinePeople();
+    //     }, 1000);
+    // }, 5000);
 
      // Process cookies for user identification
      const cookies = req.headers.cookie;
@@ -357,12 +357,15 @@ wss.on('connection', (connection, req) => {
     // Handle connection close
     connection.on('close', () => {
         clearInterval(connection.timer);
-        if (connection.deathTimer) {
-            clearTimeout(connection.deathTimer);
-        }
         console.log(`Connection closed for userId: ${connection.userId}`);
         notifyAboutOnlinePeople();
     });
+        // if (connection.deathTimer) {
+        //     clearTimeout(connection.deathTimer);
+        // }
+    //     console.log(`Connection closed for userId: ${connection.userId}`);
+    //     notifyAboutOnlinePeople();
+    // });
 
     connection.on('error', (err) => {
     console.error('WebSocket error:', err);
