@@ -59,8 +59,10 @@ export default function Chat() {
     console.log("Received message:", ev.data);
     try {
       const messageData = JSON.parse(ev.data);
-      if (messageData.online) {
-        showOnlinePeople(messageData.online);
+      if(messageData.uniqueonline) {
+      //if (messageData.online) {
+        showOnlinePeople(messageData.uniqueonline);
+        //showOnlinePeople(messageData.online);
       } else if (messageData.text || messageData.file) {
         setMessages((prev) => {
           const updatedMessages = uniqBy([...prev, messageData], "_id");
@@ -96,7 +98,9 @@ export default function Chat() {
       setOfflinePeople(offlinePeopleObj);
     });
   }, [onlinePeople]);
+
   useEffect(() => {
+    console.log("Selected User ID:", selectedUserId);
     if (!selectedUserId) return;
     const storedMessages = localStorage.getItem(`messages-${selectedUserId}`);
     if (storedMessages) {
