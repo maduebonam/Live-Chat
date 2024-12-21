@@ -27,8 +27,6 @@ export default function Chat() {
   const divUnderMessages = useRef();
   const [isVisible, setIsVisible] = useState(true);
 
-
-  //WebSocket Connection
   useEffect(() => {
     connectToWs();
     return () => {
@@ -37,34 +35,26 @@ export default function Chat() {
       }
     };
   }, []);
-  // Function to connect to the WebSocket server
   function connectToWs() {
     const wsUrl = `${import.meta.env.VITE_API_URL.replace(/^http/, "ws")}/ws`;
-    console.log("Connecting to WebSocket at:", wsUrl); // Debugging log
+    console.log("Connecting to WebSocket at:", wsUrl); 
     const wsInstance = new WebSocket(wsUrl);
-    //const wsInstance = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
-    //("ws://localhost:5000/ws");
     setWs(wsInstance);
     wsInstance.addEventListener("message", handleMessage);
     wsInstance.addEventListener("close", () => {
       console.log("WebSocket disconnected, attempting to reconnect...");
-      setTimeout(connectToWs, 3000); // Reconnect after 1 second
+      setTimeout(connectToWs, 3000); 
     });
-
     wsInstance.addEventListener("error", (err) => {
       console.error("WebSocket connection error:", err);
     });
   }
-
   const toggleVisibility = () => {
-    setIsVisible(!isVisible); // Toggle visibility
+    setIsVisible(!isVisible); 
 };
-  
   const handleHighlight = (messageId) => {
     setHighlightedMessageId(prevId => (prevId === messageId ? null : messageId));
   };
-  
-  
   function handleMessage(ev) {
     console.log("Received message:", ev.data);
     try {
@@ -79,7 +69,7 @@ export default function Chat() {
       });
     } else if (messageData.action === 'delete' && messageData.messageId) {
       setMessages((prev) => {
-          if (!prev) return []; // Ensure prev exists
+          if (!prev) return []; 
           const updatedMessages = prev.filter(msg => msg._id !== messageData.messageId);
           localStorage.setItem(`messages-${selectedUserId}`, JSON.stringify(updatedMessages));
           return updatedMessages;
@@ -89,7 +79,6 @@ export default function Chat() {
   console.error("Error parsing WebSocket message:", error);
 }
 }
-  
   function showOnlinePeople(peopleArray) {
     const people = {};
     peopleArray.forEach(({ userId, username }) => {
@@ -97,8 +86,6 @@ export default function Chat() {
     });
     setOnlinePeople(people);
   }
-
-  // Fetch Offline Users
   useEffect(() => {
     axios.get("/people").then((res) => {
       const offline = res.data
@@ -109,8 +96,6 @@ export default function Chat() {
       setOfflinePeople(offlinePeopleObj);
     });
   }, [onlinePeople]);
-
-  // Fetch Messages
   useEffect(() => {
     if (!selectedUserId) return;
     const storedMessages = localStorage.getItem(`messages-${selectedUserId}`);
@@ -125,7 +110,6 @@ export default function Chat() {
       .catch(console.error);
   }
 }, [selectedUserId]);
-  // Send Message
   function sendMessage(ev, file = null) {
     ev?.preventDefault();
     if (!newMessageText.trim() && !file) return;
@@ -140,27 +124,22 @@ export default function Chat() {
       setMessages((prev) => {
       const newMessages = [
         ...prev,
-        // ...messages,
         { ...messagePayload, sender: id, _id: Date.now() },
       ];
-      // setMessages(newMessages);
       localStorage.setItem(`messages-${selectedUserId}`, JSON.stringify(newMessages));
       return newMessages;
       });
-      setNewMessageText(""); // Clear input
+      setNewMessageText(""); 
     } else {
       console.error("WebSocket is not open.");
     }
   }
   const currentUserId = 'userId';  
-   
    useEffect(() => {
     const socket = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
-    //const socket = new WebSocket("ws://localhost:5000/ws");
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.action === 'delete' && data.messageId) {
-        // Handle delete action from the WebSocket
         setMessages((prevMessages) => 
           prevMessages.filter((msg) => msg._id !== data.messageId)
         );
@@ -168,8 +147,6 @@ export default function Chat() {
     }; 
     return () => socket.close(); t
   }, []);
-  
-// Function to handle message deletion
 const handleDelete = (messageId) => {
   if (ws?.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify({
@@ -180,7 +157,6 @@ const handleDelete = (messageId) => {
     deleteMessage(messageId); 
   }
 };
-// Delete message locally
 const deleteMessage = (messageId) => {
   setMessages((prevMessages) => {
     const updatedMessages = prevMessages.filter((msg) => msg._id !== messageId); 
@@ -188,7 +164,6 @@ const deleteMessage = (messageId) => {
     return updatedMessages;
   });
 };
-// Log updated messages to console for debugging
 useEffect(() => {
   console.log("Updated messages:", messages);
 }, [messages]);
@@ -204,7 +179,6 @@ useEffect(() => {
     })
     .catch((err) => console.error("Error uploading file:", err));
 }
-  // Logout
   function logout() {
     axios.post("/logout").then(() => {
       setWs(null);
@@ -224,8 +198,6 @@ useEffect(() => {
     });
   }, [ws]);
   
-
-  // Scroll to the Latest Message
   useEffect(() => {
     divUnderMessages.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -234,10 +206,9 @@ useEffect(() => {
   delete onlineExcludingSelf[id];
 
   const renderFile = (file) => { 
-    if (!file || !file.filePath) return null;  // Ensure file exists and filePath is available.
-    const fileExtension = file.filePath.split('.').pop().toLowerCase();  // Get file extension.
+    if (!file || !file.filePath) return null; 
+    const fileExtension = file.filePath.split('.').pop().toLowerCase();  
     const fileUrl = `${import.meta.env.VITE_API_URL}${file.filePath}`; 
-    // const fileUrl = `http://localhost:5000${file.filePath}`;  // Correctly constructing the file URL.
     if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExtension)) {
       return <img src={fileUrl} alt="file" className="w-96" />;
     }
@@ -275,9 +246,6 @@ useEffect(() => {
            </button>
            </div>
         </div>
-        
-
-
     <div className="flex h-screen flex-row">
       {isVisible && (    
       <div className="bg-white pt-12 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
@@ -316,8 +284,7 @@ useEffect(() => {
         </div>
       </div>
       )}
-      {/* Chat Area */}
-      {/* <div className="flex flex-col bg-gray-200 w-full p-2 "> */}
+      
        
       <div className={`flex flex-col bg-gray-200 w-full ${!isVisible ? "h-full" : ""}`}>     
         <div className="flex-grow overflow-y-scroll">
@@ -334,7 +301,7 @@ useEffect(() => {
                     className={`${
                       msg.sender === id ? "flex justify-end" : "flex justify-start"
                     }`}
-                    onClick={() => handleHighlight(msg._id)} //Use onClick for highlighting
+                    onClick={() => handleHighlight(msg._id)} 
                   >
                     <div
                       className={`relative inline-block cursor-pointer p-2 m-2 rounded text-sm ${
@@ -363,7 +330,6 @@ useEffect(() => {
           )}
         </div>
 
-        {/* Message Input */}
         {selectedUserId && (
            <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-3 sm:py-1 md:px-5 md:py-3">
             <input
