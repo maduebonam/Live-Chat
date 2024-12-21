@@ -39,7 +39,10 @@ export default function Chat() {
   }, []);
   // Function to connect to the WebSocket server
   function connectToWs() {
-    const wsInstance = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
+    const wsUrl = `${import.meta.env.VITE_API_URL.replace(/^http/, "ws")}/ws`;
+    console.log("Connecting to WebSocket at:", wsUrl); // Debugging log
+    const wsInstance = new WebSocket(wsUrl);
+    //const wsInstance = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
     //("ws://localhost:5000/ws");
     setWs(wsInstance);
     wsInstance.addEventListener("message", handleMessage);
@@ -152,7 +155,8 @@ export default function Chat() {
   const currentUserId = 'userId';  
    
    useEffect(() => {
-    const socket = new WebSocket("ws://localhost:5000/ws");
+    const socket = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
+    //const socket = new WebSocket("ws://localhost:5000/ws");
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.action === 'delete' && data.messageId) {

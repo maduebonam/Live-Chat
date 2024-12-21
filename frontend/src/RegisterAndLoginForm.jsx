@@ -12,7 +12,7 @@ const RegisterAndLoginForm = () => {
     async function handleSubmit(ev) {
         ev.preventDefault();
         
-        const API_URL = import.meta.env.VITE_API_URL || "https://maduchat.onrender.com/server";
+        const API_URL = import.meta.env.VITE_API_URL || "https://maduchat.onrender.com";
 
         const url = isLoginOrRegister === 'register' ? `${API_URL}/register` : `${API_URL}/login`;
 

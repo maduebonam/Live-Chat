@@ -2,7 +2,7 @@ import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 
 // Define the API URL from environment variables or fallback
-const API_URL = import.meta.env.VITE_API_URL || "https://maduchat.onrender.com/server";
+const API_URL = import.meta.env.VITE_API_URL || "https://maduchat.onrender.com";
 
 export const UserContext = createContext({});
 
