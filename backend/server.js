@@ -7,7 +7,7 @@ const User = require('./models/User');
 const Message = require('./models/Message');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const ws = require('ws');
+const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
@@ -116,7 +116,7 @@ app.get('/people', async (req,res) => {
 });
 
 // Profile Route
-app.get('/server/profile', async (req, res) => {
+app.get('/profile', async (req, res) => {
     try {
         const token = req.cookies?.token;
         if (!token) {
@@ -138,7 +138,7 @@ app.get('/server/profile', async (req, res) => {
 });
 
 // Login Route
-app.post('/server/login', async (req, res) => {
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
@@ -175,7 +175,7 @@ res.cookie('token', '', {sameSite:'none', secure:true}).json('ok');
 });
 
 // Register Route
-app.post('/server/register', async (req, res) => {
+app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     try {
         const existingUser = await User.findOne({ username });
@@ -215,7 +215,7 @@ app.use((req, res) => {
 });
 
 const server = http.createServer(app);
-const wss = new ws.WebSocketServer({
+const wss = new WebSocket.Server({
     server, 
     path: '/ws'  
 });
@@ -371,6 +371,6 @@ wss.on('connection', (connection, req) => {
  });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
