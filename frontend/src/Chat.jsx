@@ -236,7 +236,8 @@ useEffect(() => {
   const renderFile = (file) => { 
     if (!file || !file.filePath) return null;  // Ensure file exists and filePath is available.
     const fileExtension = file.filePath.split('.').pop().toLowerCase();  // Get file extension.
-    const fileUrl = `http://localhost:5000${file.filePath}`;  // Correctly constructing the file URL.
+    const fileUrl = `${import.meta.env.VITE_API_URL}${file.filePath}`; 
+    // const fileUrl = `http://localhost:5000${file.filePath}`;  // Correctly constructing the file URL.
     if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExtension)) {
       return <img src={fileUrl} alt="file" className="w-96" />;
     }
