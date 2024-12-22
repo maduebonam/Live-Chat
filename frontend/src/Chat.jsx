@@ -359,7 +359,8 @@ useEffect(() => {
               value={newMessageText}
               onChange={(e) => setNewMessageText(e.target.value)}
               placeholder="Type a message..."
-              className="flex-grow p-3 border rounded-l"
+              className="flex-grow p-3 rounded-lg border focus:outline-none"
+              
             />
             <label className='bg-gray-50 cursor-pointer px-3 py-2 '>
               <input type="file" className='hidden' onChange={sendFile}/>
