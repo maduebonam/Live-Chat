@@ -237,7 +237,7 @@ useEffect(() => {
   
     
   return (
-<div className="flex flex-col h-full">
+<div className="flex flex-col h-full w-fit">
 <div className="flex items-center justify-between  bg-white w-full fixed z-10 px-4 py-2 shadow-md">
          <div className="flex ">
             <Logo />
@@ -259,7 +259,7 @@ useEffect(() => {
            </button>
            </div>
         </div>
-    <div className="flex h-screen flex-row mx-1">
+    <div className="flex h-screen flex-row">
       {isVisible && (    
       <div className="bg-white pt-12 px-2 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
         <div className="flex-grow overflow-y-auto">
@@ -353,7 +353,7 @@ useEffect(() => {
               />
             </div>
           )}
-           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-3 sm:mx-1 sm:py-2 md:px-5 md:py-3">
+           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-4 sm:py-2 md:px-5 md:py-3">
             <input
               type="text"
               value={newMessageText}
