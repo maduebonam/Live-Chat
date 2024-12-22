@@ -60,7 +60,7 @@ export default function Chat() {
     console.log("Received message:", ev.data);
     try {
       const messageData = JSON.parse(ev.data);
-      if(messageData.uniqueonline) {
+      if(messageData.uniqueOnline) {
       //if (messageData.online) {
         showOnlinePeople(messageData.uniqueonline);
         //showOnlinePeople(messageData.online);
@@ -117,9 +117,9 @@ export default function Chat() {
 }, [selectedUserId]);
 
 useEffect(() => {
-  const filePath = localStorage.getItem('uploadedFile');
-  if (filePath) {
-      setUploadedFile(filePath);
+  const savedFile = localStorage.getItem('uploadedFile');
+  if (savedFile) {
+      setUploadedFile(savedFile);
   }
 }, []);
 
@@ -188,7 +188,11 @@ useEffect(() => {
     .post("/upload", formData)
     .then((response) => {
       const filePath = response.data.filePath;
-      sendMessage(null, { filePath });
+      
+      // Save the filePath in state and localStorage
+      setUploadedFile(filePath);
+      localStorage.setItem("uploadedFile", filePath);
+      //sendMessage(null, { filePath });
     })
     .catch((err) => console.error("Error uploading file:", err));
 }
@@ -320,7 +324,7 @@ useEffect(() => {
                       className={`relative inline-block cursor-pointer p-2 m-2 rounded text-sm ${
                         msg.sender === id
                           ? "bg-blue-500 text-white"
-                          : "bg-black text-white"
+                          : "bg-green-400 text-white"
                       }${highlightedMessageId === msg._id ? "bg-yellow-300" : ""}`} >
                       {msg.text}
                       {msg.file && renderFile(msg.file)}
