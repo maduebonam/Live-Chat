@@ -238,7 +238,7 @@ useEffect(() => {
     
   return (
 <div className="flex flex-col h-full">
-<div className="flex items-center justify-between  bg-white w-full fixed z-10 px-4 py-1 shadow-md">
+<div className="flex items-center justify-between  bg-white w-full fixed z-10 px-4 py-2 shadow-md">
          <div className="flex ">
             <Logo />
             <FontAwesomeIcon
@@ -325,7 +325,6 @@ useEffect(() => {
                       {msg.text}
                       {msg.file && renderFile(msg.file)}
 
-    {/* Show delete button only for the highlighted message */}
     {highlightedMessageId === msg._id && (
                       <button
                     onClick={() => deleteMessage(msg._id)}
@@ -348,7 +347,7 @@ useEffect(() => {
           {uploadedFile && (
             <div className="flex justify-center mb-3">
               <img
-                src={`http://localhost:5000${uploadedFile}`}
+                src={`${import.meta.env.VITE_API_URL}${uploadedFile}`}
                 alt="Uploaded"
                 className="max-h-48 rounded shadow"
               />
