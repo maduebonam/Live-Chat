@@ -223,7 +223,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const fileData = new File({ filePath: `/uploads/${req.file.filename}` });
     await fileData.save();
     res.json({ filePath: fileData.filePath });
-    //res.json({ filePath: `/uploads/${req.file.filename}` });
+    
 });
 
 // After uploading
@@ -232,7 +232,6 @@ localStorage.setItem('uploadedFile', filePath);
 // On refresh
 const uploadedFile = localStorage.getItem('uploadedFile');
 if (uploadedFile) {
-    // Display the file
 }
 
  
@@ -257,13 +256,10 @@ wss.on('connection', (connection, req) => {
         .filter((client) => client.userId && client.readyState === WebSocket.OPEN)
         .map((client) => [client.userId, { userId: client.userId, username: client.username }])
     ).values()];
-        // .map((client) => ({
-        //     userId: client.userId,
-        //     username: client.username,
-        // }));
+        
     [...wss.clients].forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ online: uniqueOnlineUsers }));
+            client.send(JSON.stringify({ uniqueOnline: uniqueOnlineUsers }));
         }
     });
 }
