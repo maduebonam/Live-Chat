@@ -62,7 +62,7 @@ export default function Chat() {
       const messageData = JSON.parse(ev.data);
       if(messageData.uniqueOnline) {
       //if (messageData.online) {
-        showOnlinePeople(messageData.uniqueonline);
+        showOnlinePeople(messageData.uniqueOnline);
         //showOnlinePeople(messageData.online);
       } else if (messageData.text || messageData.file) {
         setMessages((prev) => {
