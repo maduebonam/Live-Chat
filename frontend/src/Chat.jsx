@@ -22,6 +22,7 @@ export default function Chat() {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessageText, setNewMessageText] = useState("");
   const [messages, setMessages] = useState([]);
+  const [uploadedFile, setUploadedFile] = useState(null);
   const { username, id, setId, setUsername } = useContext(UserContext);
   const [highlightedMessageId, setHighlightedMessageId] = useState(null);
   const divUnderMessages = useRef();
@@ -114,6 +115,14 @@ export default function Chat() {
       .catch(console.error);
   }
 }, [selectedUserId]);
+
+useEffect(() => {
+  const filePath = localStorage.getItem('uploadedFile');
+  if (filePath) {
+      setUploadedFile(filePath);
+  }
+}, []);
+
   function sendMessage(ev, file = null) {
     ev?.preventDefault();
     if (!newMessageText.trim() && !file) return;
@@ -335,6 +344,16 @@ useEffect(() => {
         </div>
 
         {selectedUserId && (
+          <div>
+          {uploadedFile && (
+            <div className="flex justify-center mb-3">
+              <img
+                src={`http://localhost:5000${uploadedFile}`}
+                alt="Uploaded"
+                className="max-h-48 rounded shadow"
+              />
+            </div>
+          )}
            <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-3 sm:py-1 md:px-5 md:py-3">
             <input
               type="text"
@@ -354,6 +373,7 @@ useEffect(() => {
               Send
             </button>
           </form>
+          </div>
         )}
       </div>
     </div>
