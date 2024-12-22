@@ -70,6 +70,14 @@ mongoose.connect(process.env.MONGO_URL, {
     process.exit(1);
 });
 
+const fileSchema = new mongoose.Schema({
+    filePath: String,
+    uploadedAt: { type: Date, default: Date.now },
+});
+
+const File = mongoose.model('File', fileSchema);
+
+
 // Constants
 const jwtSecret = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10);
@@ -113,6 +121,11 @@ app.get('/messages/:userId', async (req, res) => {
 app.get('/people', async (req,res) => {
     const users = await User.find({}, {'_id':1,username:1});
     res.json(users);
+});
+
+app.get('/files', async (req, res) => {
+    const files = await File.find();
+    res.json(files);
 });
 
 // Profile Route
@@ -205,10 +218,23 @@ app.post('/register', async (req, res) => {
 });
 
 // File upload route
-app.post('/upload', upload.single('file'), (req, res) => {
+app.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    res.json({ filePath: `/uploads/${req.file.filename}` });
+    const fileData = new File({ filePath: `/uploads/${req.file.filename}` });
+    await fileData.save();
+    res.json({ filePath: fileData.filePath });
+    //res.json({ filePath: `/uploads/${req.file.filename}` });
 });
+
+// After uploading
+localStorage.setItem('uploadedFile', filePath);
+
+// On refresh
+const uploadedFile = localStorage.getItem('uploadedFile');
+if (uploadedFile) {
+    // Display the file
+}
+
  
 app.use(( req, res ) => {
     res.status(404).json({ message: 'Route not found' });
