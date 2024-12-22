@@ -237,7 +237,7 @@ useEffect(() => {
   
     
   return (
-<div className="flex flex-col h-screen">
+<div className="flex flex-col h-screen px-1">
 <div className="flex items-center justify-between  bg-white w-full fixed z-10 px-4 py-2 shadow-md">
          <div className="flex ">
             <Logo />
