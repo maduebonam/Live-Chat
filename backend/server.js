@@ -102,21 +102,55 @@ async function getUserDataFromRequest(req) {
 // Test Route
 app.get("/test", (req, res) =>  res.json("test ok"));
 
+
+
 app.get('/messages/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
+
+        // Fetch user data from the request (assuming `getUserDataFromRequest` is a valid function)
         const userData = await getUserDataFromRequest(req);
         const ourUserId = userData.userId;
+
+        // Find messages between the current user and the selected user
+        const messages = await Message.find({
+            $or: [
+                { sender: req.user.id, recipient: userId },
+                { sender: userId, recipient: req.user.id },
+            ],
+        }).sort({ createdAt: 1 });
+
+        // Alternatively, use $in operator to fetch messages between both user IDs
+        // This block could be helpful if the previous one doesn't return the correct results.
+        /*
         const messages = await Message.find({
             sender: { $in: [userId, ourUserId] },
             recipient: { $in: [userId, ourUserId] },
         }).sort({ createdAt: 1 });
+        */
+
         res.json(messages);
     } catch (error) {
         console.error('Error fetching messages:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+// app.get('/messages/:userId', async (req, res) => {
+//     try {
+//         const { userId } = req.params;
+//         const userData = await getUserDataFromRequest(req);
+//         const ourUserId = userData.userId;
+//         const messages = await Message.find({
+//             sender: { $in: [userId, ourUserId] },
+//             recipient: { $in: [userId, ourUserId] },
+//         }).sort({ createdAt: 1 });
+//         res.json(messages);
+//     } catch (error) {
+//         console.error('Error fetching messages:', error);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// });
 
 app.get('/people', async (req,res) => {
     const users = await User.find({}, {'_id':1,username:1});
