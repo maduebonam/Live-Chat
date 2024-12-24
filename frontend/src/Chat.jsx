@@ -100,21 +100,43 @@ export default function Chat() {
     });
   }, [onlinePeople]);
 
-  useEffect(() => {
-    console.log("Selected User ID:", selectedUserId);
-    if (!selectedUserId) return;
-    const storedMessages = localStorage.getItem(`messages-${selectedUserId}`);
-    if (storedMessages) {
-      setMessages(JSON.parse(storedMessages));
-    } else {
-      axios.get(`/messages/${selectedUserId}`)
+
+useEffect(() => {
+  console.log("Selected User ID:", selectedUserId);
+  if (!selectedUserId) return;
+  // Check if messages are in localStorage
+  const storedMessages = localStorage.getItem(`messages-${selectedUserId}`);
+  if (storedMessages) {
+    // If messages are found in localStorage, use them
+    setMessages(JSON.parse(storedMessages));
+  } else {
+    // If no messages in localStorage, fetch from the server
+    axios
+      .get(`/messages/${selectedUserId}`)
       .then((res) => {
-        setMessages(res.data);
+        setMessages(res.data); // Set the messages state
+        // Save fetched messages to localStorage
         localStorage.setItem(`messages-${selectedUserId}`, JSON.stringify(res.data));
       })
       .catch(console.error);
   }
-}, [selectedUserId]);
+}, [selectedUserId]); // This effect depends on the selectedUserId
+
+//   useEffect(() => {
+//     console.log("Selected User ID:", selectedUserId);
+//     if (!selectedUserId) return;
+//     const storedMessages = localStorage.getItem(`messages-${selectedUserId}`);
+//     if (storedMessages) {
+//       setMessages(JSON.parse(storedMessages));
+//     } else {
+//       axios.get(`/messages/${selectedUserId}`)
+//       .then((res) => {
+//         setMessages(res.data);
+//         localStorage.setItem(`messages-${selectedUserId}`, JSON.stringify(res.data));
+//       })
+//       .catch(console.error);
+//   }
+// }, [selectedUserId]);
 
 useEffect(() => {
   const savedFile = localStorage.getItem('uploadedFile');
@@ -123,30 +145,74 @@ useEffect(() => {
   }
 }, []);
 
-  function sendMessage(ev, file = null) {
-    ev?.preventDefault();
-    if (!newMessageText.trim() && !file) return;
 
-    const messagePayload = {
-      recipient: selectedUserId,
-      text: newMessageText,
-      file,
-    };
-    if (ws?.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(messagePayload));    
-      setMessages((prev) => {
+
+function sendMessage(ev, file = null) {
+  ev?.preventDefault();
+  // Prevent sending an empty message or file
+  if (!newMessageText.trim() && !file) return;
+  // Construct the message payload
+  const messagePayload = {
+    recipient: selectedUserId,
+    text: newMessageText,
+    file,
+  };
+  // Send message via WebSocket if it's open
+  if (ws?.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(messagePayload));    
+    // Optimistically update the UI (client-side) with the new message
+    setMessages((prev) => {
       const newMessages = [
         ...prev,
         { ...messagePayload, sender: id, _id: Date.now() },
       ];
       localStorage.setItem(`messages-${selectedUserId}`, JSON.stringify(newMessages));
       return newMessages;
-      });
-      setNewMessageText(""); 
-    } else {
-      console.error("WebSocket is not open.");
-    }
+    });
+
+    setNewMessageText(""); // Clear the input field
+  } else {
+    console.error("WebSocket is not open.");
   }
+  // Send the message to the server via API (if WebSocket is not open or for backup)
+  if (ws?.readyState !== WebSocket.OPEN) {
+    const newMessage = { ...messagePayload, sender: id };
+    axios.post('/send-message', newMessage)
+      .then((response) => {
+        // Optimistically update state with the response from the server
+        setMessages((prev) => [...prev, response.data]); // Update the state immediately
+        setNewMessageText(''); // Clear input field
+      })
+      .catch((err) => {
+        console.error("Error sending message:", err);
+      });
+  }
+}
+
+  // function sendMessage(ev, file = null) {
+  //   ev?.preventDefault();
+  //   if (!newMessageText.trim() && !file) return;
+
+  //   const messagePayload = {
+  //     recipient: selectedUserId,
+  //     text: newMessageText,
+  //     file,
+  //   };
+  //   if (ws?.readyState === WebSocket.OPEN) {
+  //     ws.send(JSON.stringify(messagePayload));    
+  //     setMessages((prev) => {
+  //     const newMessages = [
+  //       ...prev,
+  //       { ...messagePayload, sender: id, _id: Date.now() },
+  //     ];
+  //     localStorage.setItem(`messages-${selectedUserId}`, JSON.stringify(newMessages));
+  //     return newMessages;
+  //     });
+  //     setNewMessageText(""); 
+  //   } else {
+  //     console.error("WebSocket is not open.");
+  //   }
+  // }
   const currentUserId = 'userId';  
    useEffect(() => {
     const socket = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
@@ -181,21 +247,39 @@ useEffect(() => {
   console.log("Updated messages:", messages);
 }, [messages]);
   
-  function sendFile(ev) {
-    const formData = new FormData();
-    formData.append("file", ev.target.files[0]);
-    axios
+
+function sendFile(ev) {
+  const formData = new FormData();
+  formData.append("file", ev.target.files[0]);
+  axios
     .post("/upload", formData)
     .then((response) => {
       const filePath = response.data.filePath;
-      
       // Save the filePath in state and localStorage
       setUploadedFile(filePath);
       localStorage.setItem("uploadedFile", filePath);
-      //sendMessage(null, { filePath });
+      // Now send the file as part of the message
+      // Assuming handleSendMessage function is integrated in the current context
+      handleSendMessage(null, { filePath });
     })
     .catch((err) => console.error("Error uploading file:", err));
 }
+
+//   function sendFile(ev) {
+//     const formData = new FormData();
+//     formData.append("file", ev.target.files[0]);
+//     axios
+//     .post("/upload", formData)
+//     .then((response) => {
+//       const filePath = response.data.filePath;
+      
+//       // Save the filePath in state and localStorage
+//       setUploadedFile(filePath);
+//       localStorage.setItem("uploadedFile", filePath);
+//       //sendMessage(null, { filePath });
+//     })
+//     .catch((err) => console.error("Error uploading file:", err));
+// }
   function logout() {
     axios.post("/logout").then(() => {
       setWs(null);
@@ -350,11 +434,12 @@ useEffect(() => {
           <div>
           {uploadedFile && (
             <div className="flex justify-center mb-3">
-              <img
+             {renderFile(uploadedFile)}
+             {/* // <img 
                 src={`${import.meta.env.VITE_API_URL}${uploadedFile}`}
-                alt="Uploaded"
+               alt="Uploaded"
                 className="max-h-48 rounded shadow"
-              />
+               /> */}
             </div>
           )}
            <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-4 sm:py-2 md:px-5 md:py-3">
