@@ -299,7 +299,7 @@ function sendFile(ev) {
   
           {Object.keys(onlinePeople).map((userId) => (
            <div key={userId} className="flex items-center">
-            
+
            <Avatar 
              userId={userId} 
              username={onlinePeople[userId]} 
@@ -403,7 +403,7 @@ function sendFile(ev) {
                /> */}
             </div>
           )}
-           <form onSubmit={sendMessage}  className="flex sm:flex-row fixed z-10  items-center sm:w-full sm:px-4 sm:py-2 md:px-5 md:py-3">
+           <form onSubmit={sendMessage}  className="flex sm:flex-row fixed z-10 items-center sm:w-full sm:px-4  md:px-5">
             <input
               type="text"
               value={newMessageText}
