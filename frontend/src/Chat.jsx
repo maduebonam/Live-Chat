@@ -287,7 +287,7 @@ function sendFile(ev) {
       <div className="bg-white pt-12 px-2 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
         <div className="flex-grow overflow-y-auto">
 
-         {selectedUserId !== undefined && selectedUserId !== null && onlinePeople[selectedUserId] ? (
+         {/* {selectedUserId !== undefined && selectedUserId !== null && onlinePeople[selectedUserId] ? (
           <Avatar 
             userId={selectedUserId} 
             username={onlinePeople[selectedUserId]?.username || "?"} 
@@ -296,7 +296,7 @@ function sendFile(ev) {
         ) : (
           <p>No user selected</p> 
         )}
-  
+   */}
           {Object.keys(onlinePeople).map((userId) => (
            <div key={userId} className="flex items-center">
 
@@ -403,7 +403,7 @@ function sendFile(ev) {
                /> */}
             </div>
           )}
-           <form onSubmit={sendMessage}  className="flex sm:flex-row fixed z-10 items-center sm:w-full sm:px-4  md:px-5">
+           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-4 sm:py-3 md:py-3 md:px-5">
             <input
               type="text"
               value={newMessageText}
