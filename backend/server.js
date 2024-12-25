@@ -13,18 +13,13 @@ const path = require('path');
 const http = require('http');
 const multer = require('multer');``
 
-
 dotenv.config();
 const app = express();
-
-
 // CORS middleware to allow cross-origin requests
 const allowedOrigins = [
     'http://localhost:5173', // Local development frontend
     'https://maduchat.vercel.app' // Deployed frontend on Vercel
 ];
-
-
 // Handle preflight requests (CORS)
 app.use(cors({
     origin: allowedOrigins, 
@@ -32,23 +27,18 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
-
 //other Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cookieParser());
 
-
 app.get('/server', (req, res) => {
     res.send("Welcome to MaduChat API!");
 });
-
 app.get('/server/profile', (req, res) => {
     res.json({ userId: "123", username: "testuser" }); // Example response
 });
-
-
 // Multer setup for handling file uploads (store files in 'uploads' directory)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -59,7 +49,6 @@ const storage = multer.diskStorage({
     },
 });
 const upload = multer({ storage });
-
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL, {
     serverSelectionTimeoutMS: 30000, // Wait 10 seconds for connection
@@ -76,8 +65,6 @@ const fileSchema = new mongoose.Schema({
 });
 
 const File = mongoose.model('File', fileSchema);
-
-
 // Constants
 const jwtSecret = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10);
@@ -101,8 +88,6 @@ async function getUserDataFromRequest(req) {
 
 // Test Route
 app.get("/test", (req, res) =>  res.json("test ok"));
-
-
 
 app.get('/messages/:userId', async (req, res) => {
     try {
@@ -254,10 +239,12 @@ app.post('/register', async (req, res) => {
 // File upload route
 app.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const fileData = new File({ filePath: `/uploads/${req.file.filename}` });
+    const filePath = `${process.env.FRONTEND_URL}/uploads/${req.file.filename}`;
+    const fileData = new File({ filePath });
+   // const fileData = new File({ filePath: `/uploads/${req.file.filename}` });
     await fileData.save();
-    res.json({ filePath: fileData.filePath });
-    
+   // res.json({ filePath: fileData.filePath });
+    res.json({ filePath });
 });
 
 // After uploading
@@ -267,7 +254,6 @@ localStorage.setItem('uploadedFile', filePath);
 const uploadedFile = localStorage.getItem('uploadedFile');
 if (uploadedFile) {
 }
-
  
 app.use(( req, res ) => {
     res.status(404).json({ message: 'Route not found' });
@@ -278,7 +264,6 @@ const wss = new WebSocket.Server({
     server, 
     path: '/ws'  
 });
-
 
 wss.on('connection', (connection, req) => {
     console.log('New client connected');
@@ -295,6 +280,9 @@ wss.on('connection', (connection, req) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify({ uniqueOnline: uniqueOnlineUsers }));
         }
+        // [...wss.clients].forEach((client) => {
+            //client.send(JSON.stringify(
+            // [...wss.clients].map(c => (c => ({userId:c.userId,username:c.username})))));
     });
 }
  
@@ -315,8 +303,7 @@ wss.on('connection', (connection, req) => {
         }
         connection.isAlive = false;
         connection.ping(); // Send ping to check if client is alive
-    }, 5000);
-        
+    }, 5000);        
    
      // Process cookies for user identification
      const cookies = req.headers.cookie;
@@ -387,7 +374,7 @@ wss.on('connection', (connection, req) => {
                                 text: messageData.text,
                                 sender: connection.userId,
                                 recipient: messageData.recipient,
-                                file: messageData.file ? filename : null,
+                                file: messageData.file ? `/uploads/${filename}` : null,
                                 _id: messageDoc._id,
                             })
                         );
@@ -400,7 +387,6 @@ wss.on('connection', (connection, req) => {
         notifyAboutOnlinePeople();
     });
     
- 
     // Handle connection close
     connection.on('close', () => {
         clearInterval(connection.timer);
