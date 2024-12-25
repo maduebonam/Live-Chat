@@ -349,17 +349,17 @@ function sendFile(ev) {
       <div className="bg-white pt-12 px-2 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
         <div className="flex-grow overflow-y-auto">
         <Avatar 
-        userId={selectedUserId} 
-        username={onlineExcludingSelf[selectedUserId]?.username || "?"} 
-        uniqueOnline={uniqueOnline[selectedUserId] !== undefined} 
+         userId={selectedUserId} 
+         username={onlinePeople[selectedUserId]?.username || "?"} 
+         isOnline={!!onlinePeople[selectedUserId]}
       />
       
-          {Object.keys(onlineExcludingSelf).map((userId) => (
+          {Object.keys(onlinePeople).map((userId) => (
             <Contact
               key={userId}
               id={userId}
-              uniqueOnline={true}
-              username={onlineExcludingSelf[userId]}
+              isOnline={true}
+              username={onlinePeople[userId]}
               onClick={() => setSelectedUserId(userId)}
               selected={userId === selectedUserId}
             />
@@ -368,7 +368,7 @@ function sendFile(ev) {
             <Contact
               key={userId}
               id={userId}
-              uniqueOnline={false}
+              isOnline={false}
               username={offlinePeople[userId]?.username}
               onClick={() => setSelectedUserId(userId)}
               selected={userId === selectedUserId}
