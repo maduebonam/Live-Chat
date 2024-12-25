@@ -224,7 +224,7 @@ function sendMessage(ev, file = null) {
         );
       }
     }; 
-    return () => socket.close(); t
+    return () => socket.close(); 
   }, []);
 const handleDelete = (messageId) => {
   if (ws?.readyState === WebSocket.OPEN) {
