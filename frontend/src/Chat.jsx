@@ -252,7 +252,7 @@ function sendFile(ev) {
   const formData = new FormData();
   formData.append("file", ev.target.files[0]);
   axios
-    .post("/upload", formData)
+    .post(`${import.meta.env.VITE_API_URL}/upload`, formData)
     .then((response) => {
       const filePath = response.data.filePath;
       setUploadedFile(filePath);
@@ -348,6 +348,7 @@ function sendFile(ev) {
       {isVisible && (    
       <div className="bg-white pt-12 px-2 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
         <div className="flex-grow overflow-y-auto">
+          <Avatar />
           {Object.keys(onlineExcludingSelf).map((userId) => (
             <Contact
               key={userId}
