@@ -269,7 +269,7 @@ wss.on('connection', (connection, req) => {
     console.log('New client connected');
     
     function notifyAboutOnlinePeople() {
-        //const onlineUsers = [...wss.clients]
+       
         const uniqueOnlineUsers = [...new Map(
             [...wss.clients]
         .filter((client) => client.userId && client.readyState === WebSocket.OPEN)
@@ -278,32 +278,53 @@ wss.on('connection', (connection, req) => {
         
     [...wss.clients].forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ uniqueOnline: uniqueOnlineUsers }));
+            client.send(JSON.stringify({ 
+                onlinepeople: uniqueOnlineUsers,
+                isOnline: true
+             }));
         }
-        // [...wss.clients].forEach((client) => {
-            //client.send(JSON.stringify(
-            // [...wss.clients].map(c => (c => ({userId:c.userId,username:c.username})))));
+      
     });
 }
- 
-    connection.isAlive = true;
 
-    connection.on('pong', () => {
-        connection.isAlive = true; // Mark connection as alive when pong is received
-    });
+   // connection.isAlive = true;
 
+    // connection.on('pong', () => {
+    //     connection.isAlive = true; // Mark connection as alive when pong is received
+    // });
+    //     if (!connection.isAlive) {
+    //         console.log(`Connection is not alive for userId: ${connection.userId}, terminating...`);
+    //         clearInterval(connection.timer);
+    //         connection.terminate();
+    //         notifyAboutOnlinePeople();
+    //         return;
+    //     }
+    //     connection.isAlive = false;
+    //     connection.ping(); // Send ping to check if client is alive
+    // }, 5000);        
+      
+    notifyAboutOnlinePeople();
+
+    connection.on('message', (message) => {
+        // Parse the incoming message
+        const data = JSON.parse(message);
     connection.timer = setInterval(() => {
        
-        if (!connection.isAlive) {
-            console.log(`Connection is not alive for userId: ${connection.userId}, terminating...`);
-            clearInterval(connection.timer);
-            connection.terminate();
-            notifyAboutOnlinePeople();
-            return;
+    // Handle user info (e.g., when a user sets their userId and username)
+        if (data.userId && data.username) {
+            connection.userId = data.userId;
+            connection.username = data.username;
         }
-        connection.isAlive = false;
-        connection.ping(); // Send ping to check if client is alive
-    }, 5000);        
+    });
+
+    // When a client disconnects, update online users
+    connection.on('close', () => {
+        console.log('Client disconnected');
+        // Optionally, notify other clients about the updated list of online users
+        notifyAboutOnlinePeople();
+    });
+});
+
    
      // Process cookies for user identification
      const cookies = req.headers.cookie;
