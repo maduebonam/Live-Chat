@@ -12,7 +12,6 @@ import axios from "axios";
 import { uniqBy } from "lodash";
 import { faBars } from '@fortawesome/free-solid-svg-icons'; 
 
-
 library.add(faUser);
 
 export default function Chat() {
@@ -120,23 +119,7 @@ useEffect(() => {
       })
       .catch(console.error);
   }
-}, [selectedUserId]); // This effect depends on the selectedUserId
-
-//   useEffect(() => {
-//     console.log("Selected User ID:", selectedUserId);
-//     if (!selectedUserId) return;
-//     const storedMessages = localStorage.getItem(`messages-${selectedUserId}`);
-//     if (storedMessages) {
-//       setMessages(JSON.parse(storedMessages));
-//     } else {
-//       axios.get(`/messages/${selectedUserId}`)
-//       .then((res) => {
-//         setMessages(res.data);
-//         localStorage.setItem(`messages-${selectedUserId}`, JSON.stringify(res.data));
-//       })
-//       .catch(console.error);
-//   }
-// }, [selectedUserId]);
+}, [selectedUserId]); 
 
 useEffect(() => {
   const savedFile = localStorage.getItem('uploadedFile');
@@ -145,13 +128,9 @@ useEffect(() => {
   }
 }, []);
 
-
-
 function sendMessage(ev, file = null) {
   ev?.preventDefault();
-  // Prevent sending an empty message or file
   if (!newMessageText.trim() && !file) return;
-  // Construct the message payload
   const messagePayload = {
     recipient: selectedUserId,
     text: newMessageText,
@@ -160,7 +139,6 @@ function sendMessage(ev, file = null) {
   // Send message via WebSocket if it's open
   if (ws?.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify(messagePayload));    
-    // Optimistically update the UI (client-side) with the new message
     setMessages((prev) => {
       const newMessages = [
         ...prev,
@@ -174,7 +152,6 @@ function sendMessage(ev, file = null) {
   } else {
     console.error("WebSocket is not open.");
   }
-  // Send the message to the server via API (if WebSocket is not open or for backup)
   if (ws?.readyState !== WebSocket.OPEN) {
     const newMessage = { ...messagePayload, sender: id };
     axios.post('/send-message', newMessage)
@@ -189,30 +166,6 @@ function sendMessage(ev, file = null) {
   }
 }
 
-  // function sendMessage(ev, file = null) {
-  //   ev?.preventDefault();
-  //   if (!newMessageText.trim() && !file) return;
-
-  //   const messagePayload = {
-  //     recipient: selectedUserId,
-  //     text: newMessageText,
-  //     file,
-  //   };
-  //   if (ws?.readyState === WebSocket.OPEN) {
-  //     ws.send(JSON.stringify(messagePayload));    
-  //     setMessages((prev) => {
-  //     const newMessages = [
-  //       ...prev,
-  //       { ...messagePayload, sender: id, _id: Date.now() },
-  //     ];
-  //     localStorage.setItem(`messages-${selectedUserId}`, JSON.stringify(newMessages));
-  //     return newMessages;
-  //     });
-  //     setNewMessageText(""); 
-  //   } else {
-  //     console.error("WebSocket is not open.");
-  //   }
-  // }
   const currentUserId = 'userId';  
    useEffect(() => {
     const socket = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
@@ -262,21 +215,6 @@ function sendFile(ev) {
     .catch((err) => console.error("Error uploading file:", err));
 }
 
-//   function sendFile(ev) {
-//     const formData = new FormData();
-//     formData.append("file", ev.target.files[0]);
-//     axios
-//     .post("/upload", formData)
-//     .then((response) => {
-//       const filePath = response.data.filePath;
-      
-//       // Save the filePath in state and localStorage
-//       setUploadedFile(filePath);
-//       localStorage.setItem("uploadedFile", filePath);
-//       //sendMessage(null, { filePath });
-//     })
-//     .catch((err) => console.error("Error uploading file:", err));
-// }
   function logout() {
     axios.post("/logout").then(() => {
       setWs(null);
@@ -323,7 +261,7 @@ function sendFile(ev) {
     
   return (
 <div className="flex flex-col min-h-screen">
-<div className="flex items-center justify-between  bg-white w-full fixed z-10 px-4 py-2 shadow-md">
+<div className="flex items-center justify-between  bg-white w-full fixed z-10 px-4 shadow-md">
          <div className="flex ">
             <Logo />
             <FontAwesomeIcon
@@ -348,31 +286,51 @@ function sendFile(ev) {
       {isVisible && (    
       <div className="bg-white pt-12 px-2 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
         <div className="flex-grow overflow-y-auto">
-        <Avatar 
-         userId={selectedUserId} 
-         username={onlinePeople[selectedUserId]?.username || "?"} 
-         isOnline={!!onlinePeople[selectedUserId]}
-      />
-      
+
+         {selectedUserId !== undefined && selectedUserId !== null && onlinePeople[selectedUserId] ? (
+          <Avatar 
+            userId={selectedUserId} 
+            username={onlinePeople[selectedUserId]?.username || "?"} 
+            isOnline={!!onlinePeople[selectedUserId]} 
+          />
+        ) : (
+          <p>No user selected</p> 
+        )}
+  
           {Object.keys(onlinePeople).map((userId) => (
-            <Contact
-              key={userId}
-              id={userId}
-              isOnline={true}
-              username={onlinePeople[userId]}
-              onClick={() => setSelectedUserId(userId)}
-              selected={userId === selectedUserId}
-            />
+           <div key={userId} className="flex items-center">
+            
+           <Avatar 
+             userId={userId} 
+             username={onlinePeople[userId]} 
+             isOnline={true} 
+           />
+           <Contact
+             id={userId}
+             isOnline={true}
+             username={onlinePeople[userId]}
+             onClick={() => setSelectedUserId(userId)}
+             selected={userId === selectedUserId}
+           />
+         </div>
+          //     key={userId}
           ))}
           {Object.keys(offlinePeople).map((userId) => (
-            <Contact
-              key={userId}
-              id={userId}
-              isOnline={false}
-              username={offlinePeople[userId]?.username}
-              onClick={() => setSelectedUserId(userId)}
-              selected={userId === selectedUserId}
-            />
+             <div key={userId} className="flex items-center">
+             <Avatar 
+               userId={userId} 
+               username={offlinePeople[userId]?.username} 
+               isOnline={false} 
+             />
+             <Contact
+               id={userId}
+               isOnline={false}
+               username={offlinePeople[userId]?.username}
+               onClick={() => setSelectedUserId(userId)}
+               selected={userId === selectedUserId}
+             />
+           </div>
+            //   key={userId}
           ))}
         </div>
         <div className="flex items-center justify-center p-3 bg-gray-400">
@@ -445,7 +403,7 @@ function sendFile(ev) {
                /> */}
             </div>
           )}
-           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-4 sm:py-2 md:px-5 md:py-3">
+           <form onSubmit={sendMessage}  className="flex sm:flex-row fixed z-10  items-center sm:w-full sm:px-4 sm:py-2 md:px-5 md:py-3">
             <input
               type="text"
               value={newMessageText}
