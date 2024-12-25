@@ -255,12 +255,9 @@ function sendFile(ev) {
     .post("/upload", formData)
     .then((response) => {
       const filePath = response.data.filePath;
-      // Save the filePath in state and localStorage
       setUploadedFile(filePath);
       localStorage.setItem("uploadedFile", filePath);
-      // Now send the file as part of the message
-      // Assuming handleSendMessage function is integrated in the current context
-      handleSendMessage(null, { filePath });
+      sendMessage(null, { filePath });
     })
     .catch((err) => console.error("Error uploading file:", err));
 }
