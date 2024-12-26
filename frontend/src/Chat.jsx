@@ -331,10 +331,10 @@ function sendFile(ev) {
       )}
       
        
-      <div className={`flex flex-col bg-gray-200 w-full sm:pt-20 ${!isVisible ? "h-full" : ""}`}>     
+      <div className={`flex flex-col bg-gray-200 w-full ${!isVisible ? "h-full" : ""}`}>     
         <div className="flex-grow overflow-y-scroll">
           {!selectedUserId ? (
-            <div className="flex h-full items-center justify-center text-gray-300">
+            <div className="flex h-full items-center justify-center sm:pt-18 text-gray-300">
               &larr; Select a user to start chatting
             </div> 
           ) : (
@@ -393,16 +393,16 @@ function sendFile(ev) {
               value={newMessageText}
               onChange={(e) => setNewMessageText(e.target.value)}
               placeholder="Type a message..."
-              className="flex-grow p-3 rounded-lg border focus:outline-none"
+              className="flex-grow p-3 rounded-l border focus:outline-none"
               
             />
-            <label className='bg-gray-50 cursor-pointer px-3 py-2 '>
+            <label className='bg-gray-50 cursor-pointer p-3'>
               <input type="file" className='hidden' onChange={sendFile}/>
               <FontAwesomeIcon icon={faPaperclip} className="text-gray-900 text-2xl" />
               </label>
             <button
               type="submit"
-              className="bg-blue-500 text-white p-2 mr-3 rounded-r"
+              className="bg-blue-500 text-white p-3 mr-3 rounded-r"
             >
               Send
             </button>
