@@ -261,7 +261,7 @@ function sendFile(ev) {
     
   return (
 <div className="flex flex-col min-h-screen">
-<div className="flex items-center justify-between  bg-white w-full fixed z-10 px-4 shadow-md">
+<div className="flex items-center justify-between pb-4 bg-white w-full fixed z-10 px-4 shadow-md">
          <div className="flex ">
             <Logo />
             <FontAwesomeIcon
