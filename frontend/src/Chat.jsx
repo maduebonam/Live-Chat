@@ -287,40 +287,39 @@ function sendFile(ev) {
       <div className="bg-white pt-12 px-2 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
         <div className="flex-grow overflow-y-auto">
 
-         {/* {selectedUserId !== undefined && selectedUserId !== null && onlinePeople[selectedUserId] ? (
-          <Avatar 
-            userId={selectedUserId} 
-            username={onlinePeople[selectedUserId]?.username || "?"} 
-            isOnline={!!onlinePeople[selectedUserId]} 
+        {selectedUserId !== undefined && selectedUserId !== null && onlinePeople[selectedUserId] ? (
+          <Avatar
+            userId={selectedUserId}
+            username={onlinePeople[selectedUserId]?.username || "?"}
+            isOnline={!!onlinePeople[selectedUserId]}
           />
         ) : (
-          <p>No user selected</p> 
-        )} */}
-   
-          {Object.keys(onlinePeople).map((userId) => (
-        
-
-      
-           <Contact
-             id={userId}
-             isOnline={true}
-             username={onlinePeople[userId]}
-             onClick={() => setSelectedUserId(userId)}
-             selected={userId === selectedUserId}
-           />
-        
-          //     key={userId}
-          ))}
-          {Object.keys(offlinePeople).map((userId) => (
+          <p>No user selected</p>
+        )}
+        {/* Combine and sort online and offline users */}
+        {[...Object.entries(onlinePeople), ...Object.entries(offlinePeople)].map(([userId, user]) => (
+          <div key={userId} className="flex items-center mb-4">
+            <Avatar
+              userId={userId}
+              username={user.username || "?"}
+              isOnline={!!onlinePeople[userId]}
+            />
+            <Contact
+              id={userId}
+              isOnline={!!onlinePeople[userId]}
+              username={user.username}
+              onClick={() => setSelectedUserId(userId)}
+              selected={userId === selectedUserId}
+            />
+          </div>
             
-             <Contact
-               id={userId}
-               isOnline={false}
-               username={offlinePeople[userId]?.username}
-               onClick={() => setSelectedUserId(userId)}
-               selected={userId === selectedUserId}
-             />
-           
+            //  <Contact
+            //    id={userId}
+            //    isOnline={false}
+            //    username={offlinePeople[userId]?.username}
+            //    onClick={() => setSelectedUserId(userId)}
+            //    selected={userId === selectedUserId}
+            //  />         
             //   key={userId}
           ))}
         </div>
