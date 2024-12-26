@@ -386,7 +386,7 @@ function sendFile(ev) {
                /> */}
             </div>
           )}
-           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-4 sm:py-3 md:py-3 md:px-5">
+           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-10 sm:py-3 md:py-3 md:px-5">
             <input
               type="text"
               value={newMessageText}
