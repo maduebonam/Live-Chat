@@ -287,14 +287,7 @@ function sendFile(ev) {
       <div className="bg-white pt-12 px-2 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
         <div className="flex-grow overflow-y-auto">
 {/* Combine and sort online and offline users */}
-        {[...Object.entries(onlinePeople), ...Object.entries(offlinePeople)].map(([userId, user]) => (
-          <div key={userId} className="flex items-center mb-4">
-            {/* <Avatar
-              userId={userId}
-              username={user.username || "?"}
-              isOnline={!!onlinePeople[userId]}
-            /> */}
-              {selectedUserId !== undefined && selectedUserId !== null && onlinePeople[selectedUserId] ? (
+{selectedUserId !== undefined && selectedUserId !== null && onlinePeople[selectedUserId] ? (
           <Avatar
             userId={selectedUserId}
             username={onlinePeople[selectedUserId]?.username || "?"}
@@ -303,6 +296,16 @@ function sendFile(ev) {
         ) : (
           <p>No user selected</p>
         )}
+        {[...Object.entries(onlinePeople), ...Object.entries(offlinePeople)].map(([userId, user]) => (
+          <div key={userId} className="flex items-center mb-4">
+
+
+            {/* <Avatar
+              userId={userId}
+              username={user.username || "?"}
+              isOnline={!!onlinePeople[userId]}
+            /> */}
+             
             <Contact
               id={userId}
               isOnline={!!onlinePeople[userId]}
