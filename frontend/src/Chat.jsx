@@ -285,7 +285,7 @@ function sendFile(ev) {
     <div className="flex h-screen flex-row">
       {isVisible && (    
       <div className="bg-white pt-12 px-2 lg:w-1/4 sm:w-1/3 text-sm flex flex-col">       
-        <div className="flex-grow overflow-y-auto">
+        <div className="flex-grow overflow-y-auto sm:pb-10">
 {/* Combine and sort online and offline users */}
 {selectedUserId !== undefined && selectedUserId !== null && onlinePeople[selectedUserId] ? (
           <Avatar
@@ -331,7 +331,7 @@ function sendFile(ev) {
       )}
       
        
-      <div className={`flex flex-col bg-gray-200 w-full pb-44 pt-20 sm:pb-20 md:pb-32 lg:pb-44 ${!isVisible ? "h-full" : ""}`}>     
+      <div className={`flex flex-col bg-gray-200 w-full pb-44 pt-20 sm:pb-10 md:pb-32 lg:pb-4 ${!isVisible ? "h-full" : ""}`}>     
         <div className="flex-grow overflow-y-scroll">
           {!selectedUserId ? (
             <div className="flex h-full items-center justify-center text-gray-300">
@@ -387,7 +387,7 @@ function sendFile(ev) {
             </div>
           )}
           
-           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-10 sm:py-3 md:py-3 md:px-5">
+           <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-2 sm:py-3 md:py-3 md:px-2">
             <input
               type="text"
               value={newMessageText}
