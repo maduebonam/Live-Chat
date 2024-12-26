@@ -331,8 +331,8 @@ function sendFile(ev) {
       )}
       
        
-      <div className={`flex flex-col bg-gray-200 w-full sm:pt-15 sm:pb-2 md:pb-2 lg:pb-2 ${!isVisible ? "h-full" : ""}`}>     
-        <div className="flex-grow overflow-y-scroll pt-14">
+      <div className={`flex flex-col bg-gray-200 w-full sm:pt-20 ${!isVisible ? "h-full" : ""}`}>     
+        <div className="flex-grow overflow-y-scroll pt-20">
           {!selectedUserId ? (
             <div className="flex h-full items-center justify-center text-gray-300">
               &larr; Select a user to start chatting
@@ -353,7 +353,7 @@ function sendFile(ev) {
                         msg.sender === id
                           ? "bg-blue-500 text-white"
                           : "bg-green-400 text-white"
-                      }${highlightedMessageId === msg._id ? "bg-yellow-300" : ""}`} >
+                      }${highlightedMessageId === msg._id ? "bg-yellow-300" : "bg-white"}`} >
                       {msg.text}
                       {msg.file && renderFile(msg.file)}
 
