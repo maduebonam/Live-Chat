@@ -332,13 +332,13 @@ function sendFile(ev) {
       
        
       <div className={`flex flex-col bg-gray-200 w-full sm:pt-20 ${!isVisible ? "h-full" : ""}`}>     
-        <div className="flex-grow overflow-y-scroll sm:pt-20">
+        <div className="flex-grow overflow-y-scroll">
           {!selectedUserId ? (
             <div className="flex h-full items-center justify-center sm:pt-20 text-gray-300">
               &larr; Select a user to start chatting
             </div> 
           ) : (
-            <div className="relative h-full">
+            <div className="relative h-full sm:pt-20">
               <div className="absolute inset-0 overflow-y-scroll">
                 {messages.map((msg) => (
                   <div
