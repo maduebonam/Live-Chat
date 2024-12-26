@@ -331,7 +331,7 @@ function sendFile(ev) {
       )}
       
        
-      <div className={`flex flex-col bg-gray-200 w-full ${!isVisible ? "h-full" : ""}`}>     
+      <div className={`flex flex-col bg-gray-200 w-full pb-44 pt-20 sm:pb-20 md:pb-32 lg:pb-44 ${!isVisible ? "h-full" : ""}`}>     
         <div className="flex-grow overflow-y-scroll">
           {!selectedUserId ? (
             <div className="flex h-full items-center justify-center text-gray-300">
@@ -386,6 +386,7 @@ function sendFile(ev) {
                /> */}
             </div>
           )}
+          
            <form onSubmit={sendMessage}  className="flex sm:flex-row items-center sm:w-full sm:px-10 sm:py-3 md:py-3 md:px-5">
             <input
               type="text"
@@ -405,8 +406,8 @@ function sendFile(ev) {
             >
               Send
             </button>
-          </form>
-          </div>
+          </form> 
+         </div>
         )}
       </div>
     </div>
