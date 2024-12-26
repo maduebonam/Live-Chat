@@ -331,7 +331,7 @@ function sendFile(ev) {
       )}
       
        
-      <div className={`flex flex-col bg-gray-200 w-full ${!isVisible ? "h-full" : ""}`}>     
+      <div className={`flex flex-col bg-gray-200 w-full sm:pt-20 ${!isVisible ? "h-full" : ""}`}>     
         <div className="flex-grow overflow-y-scroll sm:pt-20">
           {!selectedUserId ? (
             <div className="flex h-full items-center justify-center sm:pt-20 text-gray-300">
