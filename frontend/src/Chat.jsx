@@ -338,11 +338,11 @@ function sendFile(ev) {
       <div className={`flex flex-col bg-gray-200 w-full sm:pt-20 ${!isVisible ? "h-full" : ""}`}>     
         <div className="flex-grow overflow-y-scroll">
           {!selectedUserId ? (
-            <div className="flex h-full items-center justify-center sm:pt-20 text-gray-300">
+            <div className="flex h-full items-center justify-center pl-4 sm:pt-20 text-gray-300">
               &larr; Select a user to start chatting
             </div> 
           ) : (
-            <div className="relative h-full sm:pt-20">
+            <div className="relative h-full sm:pt-20 ">
               <div className="absolute inset-0 overflow-y-scroll">
                 {messages.map((msg) => (
                   <div
@@ -353,14 +353,14 @@ function sendFile(ev) {
                     onClick={() => handleHighlight(msg._id)} 
                   >
                     <div
-                      className={`relative chat-bubble inline-block cursor-pointer p-2 m-2 rounded text-sm ${
+                      className={`relative chat-bubble inline-block cursor-pointer p-2 m-2 rounded text-sm ${ 
                         msg.sender === id
                           ? "bg-blue-500 text-white"
                           : "bg-green-400 text-white"
                       }${highlightedMessageId === msg._id ? "bg-yellow-300" : "bg-white"}`} >
                       {msg.text}
                       {msg.file && renderFile(msg.file)}
-
+                      {/* <div className={`chat-bubble text-white ${getBubbleColor(message.uid)}`}>{message.text}</div> */}
     {highlightedMessageId === msg._id && (
                       <button
                     onClick={() => deleteMessage(msg._id)}
@@ -397,8 +397,7 @@ function sendFile(ev) {
               value={newMessageText}
               onChange={(e) => setNewMessageText(e.target.value)}
               placeholder="Type a message..."
-              className="flex-grow p-3 rounded-l border focus:outline-none"
-              
+              className="flex-grow p-3 rounded-l border focus:outline-none"              
             />
             <label className='bg-gray-50 cursor-pointer p-3'>
               <input type="file" className='hidden' onChange={sendFile}/>
