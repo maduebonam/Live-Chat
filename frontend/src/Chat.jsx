@@ -27,6 +27,8 @@ export default function Chat() {
   const divUnderMessages = useRef();
   const [isVisible, setIsVisible] = useState(true);
 
+
+
   useEffect(() => {
     connectToWs();
     return () => {
@@ -149,16 +151,18 @@ function sendMessage(ev, file = null) {
     });
 
     setNewMessageText(""); // Clear the input field
+    console.log('message sent');
   } else {
     console.error("WebSocket is not open.");
   }
   if (ws?.readyState !== WebSocket.OPEN) {
-    const newMessage = { ...messagePayload, sender: id };
+    const newMessage = { ...messagePayload, sender: id, _id: Date.now() };
     axios.post('/send-message', newMessage)
       .then((response) => {
         // Optimistically update state with the response from the server
         setMessages((prev) => [...prev, response.data]); // Update the state immediately
         setNewMessageText(''); // Clear input field
+       console.log('message sent');
       })
       .catch((err) => {
         console.error("Error sending message:", err);
@@ -349,7 +353,7 @@ function sendFile(ev) {
                     onClick={() => handleHighlight(msg._id)} 
                   >
                     <div
-                      className={`relative inline-block cursor-pointer p-2 m-2 rounded text-sm ${
+                      className={`relative chat-bubble inline-block cursor-pointer p-2 m-2 rounded text-sm ${
                         msg.sender === id
                           ? "bg-blue-500 text-white"
                           : "bg-green-400 text-white"
